@@ -93,6 +93,8 @@ const recurringForms = {
 };
 
 const elements = {
+  hero: document.querySelector(".hero"),
+  authPreviewStrip: document.querySelector(".auth-preview-strip"),
   authShell: document.querySelector("#auth-shell"),
   userShell: document.querySelector("#user-shell"),
   configBanner: document.querySelector("#config-banner"),
@@ -600,6 +602,12 @@ function setDefaultDateTime(dateField, timeField) {
 
 function renderShell() {
   const signedIn = Boolean(state.user);
+  if (elements.hero) {
+    elements.hero.classList.toggle("hidden", signedIn);
+  }
+  if (elements.authPreviewStrip) {
+    elements.authPreviewStrip.classList.toggle("hidden", signedIn);
+  }
   elements.authShell.classList.toggle("hidden", signedIn || !state.configReady);
   elements.userShell.classList.toggle("hidden", !signedIn);
   elements.configBanner.classList.toggle("hidden", state.configReady);
