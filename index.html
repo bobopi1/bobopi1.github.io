@@ -139,6 +139,10 @@
           <span class="page-tab-icon" aria-hidden="true">+</span>
           <span class="page-tab-label">Revenue</span>
         </button>
+        <button class="page-tab" type="button" data-view="savings">
+          <span class="page-tab-icon" aria-hidden="true">S</span>
+          <span class="page-tab-label">Savings</span>
+        </button>
       </nav>
 
       <main class="page-stack">
@@ -181,7 +185,7 @@
                 <article class="summary-card balance-card">
                   <p>Range balance</p>
                   <h3 id="balance-value">$0.00</h3>
-                  <span>Income minus spending in this range</span>
+                  <span>Income minus spending and savings</span>
                 </article>
                 <article class="summary-card spending-card">
                   <p>Range spending</p>
@@ -192,6 +196,11 @@
                   <p>Range earnings</p>
                   <h3 id="month-spent-value">$0.00</h3>
                   <span id="month-income-hint">Spending in range: $0.00</span>
+                </article>
+                <article class="summary-card savings-card">
+                  <p>TFSA saved</p>
+                  <h3 id="savings-value">$0.00</h3>
+                  <span id="savings-hint">Total TFSA contributions in range</span>
                 </article>
                 <article class="summary-card count-card">
                   <p>Tracked items</p>
@@ -205,11 +214,12 @@
               <div class="panel-heading">
                 <div>
                   <p class="panel-kicker">Range Breakdown</p>
-                  <h2>Income vs spending</h2>
+                  <h2>Income, spending, and savings</h2>
                 </div>
                 <div class="chart-totals">
                   <p id="chart-income-total" class="chart-total income-total">Income: $0.00</p>
                   <p id="chart-expense-total" class="chart-total expense-total">Spending: $0.00</p>
+                  <p id="chart-savings-total" class="chart-total savings-total">Savings: $0.00</p>
                 </div>
               </div>
 
@@ -240,6 +250,7 @@
                     <option value="all">All</option>
                     <option value="expense">Spending</option>
                     <option value="income">Earnings</option>
+                    <option value="savings">Savings</option>
                   </select>
                 </div>
               </div>
@@ -461,6 +472,80 @@
                   <button class="ghost-button" type="button" data-reset-form="income-recurring">Clear</button>
                 </div>
               </form>
+            </section>
+          </div>
+        </section>
+
+        <section id="view-savings" class="page-view">
+          <div class="form-layout savings-layout">
+            <section class="panel form-panel savings-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="panel-kicker">Savings</p>
+                  <h2>Add a TFSA contribution</h2>
+                </div>
+              </div>
+
+              <form id="savings-form" class="entry-form">
+                <label>
+                  <span>Title</span>
+                  <input id="savings-title" name="title" type="text" placeholder="TFSA deposit, transfer, contribution..." required>
+                </label>
+
+                <div class="form-row">
+                  <label>
+                    <span>Amount</span>
+                    <input id="savings-amount" name="amount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00" required>
+                  </label>
+
+                  <label>
+                    <span>Category</span>
+                    <select id="savings-category" name="category"></select>
+                  </label>
+                </div>
+
+                <div class="form-row">
+                  <label>
+                    <span>Date</span>
+                    <input id="savings-date" name="date" type="date" required>
+                  </label>
+
+                  <label>
+                    <span>Time</span>
+                    <input id="savings-time" name="time" type="time" required>
+                  </label>
+                </div>
+
+                <label>
+                  <span>Notes</span>
+                  <textarea id="savings-notes" name="notes" rows="3" placeholder="Optional note"></textarea>
+                </label>
+
+                <div class="form-actions">
+                  <button class="primary-button savings-button" type="submit">Save Savings</button>
+                  <button class="ghost-button" type="button" data-reset-form="savings">Clear</button>
+                </div>
+              </form>
+            </section>
+
+            <section class="panel savings-info-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="panel-kicker">TFSA View</p>
+                  <h2>Keep long-term contributions visible</h2>
+                </div>
+              </div>
+
+              <div class="savings-callouts">
+                <article class="savings-callout">
+                  <span>Purpose</span>
+                  <strong>Track transfers into TFSA separately from everyday spending.</strong>
+                </article>
+                <article class="savings-callout">
+                  <span>Overview</span>
+                  <strong>Your savings now appear in the main dashboard and chart breakdown.</strong>
+                </article>
+              </div>
             </section>
           </div>
         </section>
