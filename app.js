@@ -35,9 +35,10 @@ const state = {
   view: "overview",
   entries: [],
   recurringItems: [],
-  trendPeriod: "weekly",
   filter: "all",
   search: "",
+  overviewStartDate: "",
+  overviewEndDate: "",
   supabase: null,
   user: null,
   configReady: false
@@ -96,6 +97,7 @@ const elements = {
   authForm: document.querySelector("#auth-form"),
   authEmail: document.querySelector("#auth-email"),
   authPassword: document.querySelector("#auth-password"),
+  authStatus: document.querySelector("#auth-status"),
   signUpButton: document.querySelector("#sign-up-button"),
   signOutButton: document.querySelector("#sign-out-button"),
   userEmail: document.querySelector("#user-email"),
@@ -112,12 +114,16 @@ const elements = {
   installDialog: document.querySelector("#install-dialog"),
   filter: document.querySelector("#history-filter"),
   search: document.querySelector("#search"),
-  periodWeekly: document.querySelector("#period-weekly"),
-  periodMonthly: document.querySelector("#period-monthly"),
+  overviewStartDate: document.querySelector("#overview-start-date"),
+  overviewEndDate: document.querySelector("#overview-end-date"),
+  clearOverviewDates: document.querySelector("#clear-overview-dates"),
+  overviewFilterHint: document.querySelector("#overview-filter-hint"),
   historyList: document.querySelector("#history-list"),
   recurringList: document.querySelector("#recurring-list"),
   recurringSummary: document.querySelector("#recurring-summary"),
   trendChart: document.querySelector("#trend-chart"),
+  chartIncomeTotal: document.querySelector("#chart-income-total"),
+  chartExpenseTotal: document.querySelector("#chart-expense-total"),
   balanceValue: document.querySelector("#balance-value"),
   weekSpentValue: document.querySelector("#week-spent-value"),
   monthSpentValue: document.querySelector("#month-spent-value"),
@@ -220,16 +226,39 @@ function bindEvents() {
 
   elements.filter.addEventListener("change", (event) => {
     state.filter = event.target.value;
-    renderHistory(getAllEntries());
+    renderHistory(getOverviewEntries());
   });
 
   elements.search.addEventListener("input", (event) => {
     state.search = event.target.value.trim();
-    renderHistory(getAllEntries());
+    renderHistory(getOverviewEntries());
   });
 
-  elements.periodWeekly.addEventListener("click", () => setTrendPeriod("weekly"));
-  elements.periodMonthly.addEventListener("click", () => setTrendPeriod("monthly"));
+  elements.overviewStartDate.addEventListener("change", (event) => {
+    state.overviewStartDate = event.target.value;
+    if (state.overviewEndDate && state.overviewStartDate && state.overviewStartDate > state.overviewEndDate) {
+      state.overviewEndDate = state.overviewStartDate;
+      elements.overviewEndDate.value = state.overviewEndDate;
+    }
+    render();
+  });
+
+  elements.overviewEndDate.addEventListener("change", (event) => {
+    state.overviewEndDate = event.target.value;
+    if (state.overviewStartDate && state.overviewEndDate && state.overviewEndDate < state.overviewStartDate) {
+      state.overviewStartDate = state.overviewEndDate;
+      elements.overviewStartDate.value = state.overviewStartDate;
+    }
+    render();
+  });
+
+  elements.clearOverviewDates.addEventListener("click", () => {
+    state.overviewStartDate = "";
+    state.overviewEndDate = "";
+    elements.overviewStartDate.value = "";
+    elements.overviewEndDate.value = "";
+    render();
+  });
 }
 
 async function handleSessionChange(session) {
@@ -575,80 +604,72 @@ function setView(view) {
   });
 }
 
-function setTrendPeriod(period) {
-  state.trendPeriod = period;
-  renderTrend(getAllEntries());
-}
-
 function render() {
   const derivedEntries = getAllEntries();
-  renderSummary(derivedEntries);
-  renderTrend(derivedEntries);
+  const overviewEntries = getOverviewEntries(derivedEntries);
+  renderSummary(overviewEntries, derivedEntries);
+  renderTrend(overviewEntries);
   renderRecurring();
-  renderHistory(derivedEntries);
+  renderHistory(overviewEntries);
   elements.storageStatus.textContent = "Stored in Supabase for this account";
 }
 
-function renderSummary(entries) {
-  const sortedEntries = getSortedEntries(entries);
-  const now = new Date();
-  const weekRange = getWeekRange(now);
-  const monthRange = getMonthRange(now);
-
+function renderSummary(entries, allEntries) {
   const balance = sumAmount(entries, "income") - sumAmount(entries, "expense");
-  const weekSpent = sumAmount(inRangeEntries(entries, weekRange), "expense");
-  const monthSpent = sumAmount(inRangeEntries(entries, monthRange), "expense");
-  const weekIncome = sumAmount(inRangeEntries(entries, weekRange), "income");
-  const monthIncome = sumAmount(inRangeEntries(entries, monthRange), "income");
+  const spendingTotal = sumAmount(entries, "expense");
+  const incomeTotal = sumAmount(entries, "income");
+  const lastEntry = getSortedEntries(allEntries)[0];
 
   elements.balanceValue.textContent = formatCurrency(balance);
-  elements.weekSpentValue.textContent = formatCurrency(weekSpent);
-  elements.monthSpentValue.textContent = formatCurrency(monthSpent);
-  elements.weekIncomeHint.textContent = `Income this week: ${formatCurrency(weekIncome)}`;
-  elements.monthIncomeHint.textContent = `Income this month: ${formatCurrency(monthIncome)}`;
+  elements.weekSpentValue.textContent = formatCurrency(spendingTotal);
+  elements.monthSpentValue.textContent = formatCurrency(incomeTotal);
+  elements.weekIncomeHint.textContent = `Income in range: ${formatCurrency(incomeTotal)}`;
+  elements.monthIncomeHint.textContent = `Spending in range: ${formatCurrency(spendingTotal)}`;
   elements.entryCountValue.textContent = String(entries.length);
-  elements.lastEntryHint.textContent = sortedEntries.length
-    ? `Latest: ${sortedEntries[0].title} on ${formatShortDateTime(sortedEntries[0].createdAt)}`
-    : "No entries yet";
+  elements.lastEntryHint.textContent = getOverviewHint(entries, lastEntry);
+  elements.overviewFilterHint.textContent = getOverviewFilterLabel(entries.length);
 }
 
 function renderTrend(entries) {
-  const points = state.trendPeriod === "weekly" ? getWeeklyTrend(entries) : getMonthlyTrend(entries);
   elements.trendChart.innerHTML = "";
+  const incomeTotal = sumAmount(entries, "income");
+  const expenseTotal = sumAmount(entries, "expense");
+  const total = incomeTotal + expenseTotal;
 
-  elements.periodWeekly.classList.toggle("is-active", state.trendPeriod === "weekly");
-  elements.periodMonthly.classList.toggle("is-active", state.trendPeriod === "monthly");
+  elements.chartIncomeTotal.textContent = `Income: ${formatCurrency(incomeTotal)}`;
+  elements.chartExpenseTotal.textContent = `Spending: ${formatCurrency(expenseTotal)}`;
 
-  if (!points.some((point) => point.total > 0)) {
+  if (total <= 0) {
     const empty = document.createElement("p");
     empty.className = "chart-empty";
-    empty.textContent = "Add a few spending entries to see your trend here.";
+    empty.textContent = "Add a few entries in this date range to see the breakdown here.";
     elements.trendChart.appendChild(empty);
     return;
   }
 
-  const maxValue = Math.max(...points.map((point) => point.total), 1);
+  const pieShell = document.createElement("div");
+  pieShell.className = "pie-chart-shell";
 
-  points.forEach((point) => {
-    const wrapper = document.createElement("div");
-    wrapper.className = "chart-bar-wrap";
+  const pie = document.createElement("div");
+  pie.className = "pie-chart";
+  pie.style.setProperty("--income-angle", `${(incomeTotal / total) * 360}deg`);
+  pie.setAttribute("role", "img");
+  pie.setAttribute("aria-label", `Income ${formatCurrency(incomeTotal)} and spending ${formatCurrency(expenseTotal)}`);
 
-    const value = document.createElement("div");
-    value.className = "chart-value";
-    value.textContent = formatCurrency(point.total);
+  const center = document.createElement("div");
+  center.className = "pie-center";
+  center.innerHTML = `<div><strong>${formatCurrency(incomeTotal - expenseTotal)}</strong><span>Net</span></div>`;
+  pie.appendChild(center);
 
-    const bar = document.createElement("div");
-    bar.className = "chart-bar";
-    bar.style.height = `${Math.max((point.total / maxValue) * 180, 16)}px`;
-    bar.title = `${point.label}: ${formatCurrency(point.total)}`;
+  const legend = document.createElement("div");
+  legend.className = "pie-legend";
+  legend.append(
+    createLegendItem("income", "Earnings", incomeTotal, total),
+    createLegendItem("expense", "Spending", expenseTotal, total)
+  );
 
-    const label = document.createElement("div");
-    label.className = "chart-label";
-    label.textContent = point.label;
-
-    wrapper.append(value, bar, label);
-    elements.trendChart.appendChild(wrapper);
-  });
+  pieShell.append(pie, legend);
+  elements.trendChart.appendChild(pieShell);
 }
 
 function renderRecurring() {
@@ -748,6 +769,10 @@ function getVisibleEntries(entries) {
   });
 }
 
+function getOverviewEntries(entries = getAllEntries()) {
+  return filterEntriesByDateRange(entries, getSelectedDateRange());
+}
+
 function getSortedEntries(entries) {
   return [...entries].sort((left, right) => new Date(right.createdAt) - new Date(left.createdAt));
 }
@@ -828,73 +853,10 @@ function projectMonthlyAmount(item) {
   }
 }
 
-function getWeeklyTrend(entries) {
-  const now = new Date();
-  const points = [];
-
-  for (let offset = 7; offset >= 0; offset -= 1) {
-    const anchor = new Date(now);
-    anchor.setDate(now.getDate() - offset * 7);
-    const range = getWeekRange(anchor);
-    const total = sumAmount(inRangeEntries(entries, range), "expense");
-
-    points.push({
-      label: range.start.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
-      total
-    });
-  }
-
-  return points;
-}
-
-function getMonthlyTrend(entries) {
-  const now = new Date();
-  const points = [];
-
-  for (let offset = 5; offset >= 0; offset -= 1) {
-    const anchor = new Date(now.getFullYear(), now.getMonth() - offset, 1);
-    const range = getMonthRange(anchor);
-    const total = sumAmount(inRangeEntries(entries, range), "expense");
-
-    points.push({
-      label: anchor.toLocaleDateString(undefined, { month: "short" }),
-      total
-    });
-  }
-
-  return points;
-}
-
-function inRangeEntries(entries, range) {
-  return entries.filter((entry) => {
-    const timestamp = new Date(entry.createdAt);
-    return timestamp >= range.start && timestamp < range.end;
-  });
-}
-
 function sumAmount(entries, kind) {
   return entries
     .filter((entry) => entry.kind === kind)
     .reduce((total, entry) => total + Number(entry.amount), 0);
-}
-
-function getWeekRange(date) {
-  const start = new Date(date);
-  const day = start.getDay();
-  const diff = day === 0 ? -6 : 1 - day;
-  start.setHours(0, 0, 0, 0);
-  start.setDate(start.getDate() + diff);
-
-  const end = new Date(start);
-  end.setDate(start.getDate() + 7);
-
-  return { start, end };
-}
-
-function getMonthRange(date) {
-  const start = new Date(date.getFullYear(), date.getMonth(), 1);
-  const end = new Date(date.getFullYear(), date.getMonth() + 1, 1);
-  return { start, end };
 }
 
 function addFrequency(date, frequency) {
@@ -1046,8 +1008,105 @@ function formatShortDate(value) {
   });
 }
 
+function getSelectedDateRange() {
+  if (!state.overviewStartDate && !state.overviewEndDate) {
+    return null;
+  }
+
+  const start = state.overviewStartDate ? parseDateOnly(state.overviewStartDate) : null;
+  const end = state.overviewEndDate ? parseDateOnly(state.overviewEndDate) : null;
+
+  return {
+    start: start ? startOfDay(start) : null,
+    end: end ? addDays(startOfDay(end), 1) : null
+  };
+}
+
+function filterEntriesByDateRange(entries, range) {
+  if (!range) {
+    return entries;
+  }
+
+  return entries.filter((entry) => {
+    const timestamp = new Date(entry.createdAt);
+    const afterStart = !range.start || timestamp >= range.start;
+    const beforeEnd = !range.end || timestamp < range.end;
+    return afterStart && beforeEnd;
+  });
+}
+
+function getOverviewFilterLabel(entryCount) {
+  if (!state.overviewStartDate && !state.overviewEndDate) {
+    return "Showing all tracked dates";
+  }
+
+  const fromLabel = state.overviewStartDate ? formatShortDate(state.overviewStartDate) : "the beginning";
+  const toLabel = state.overviewEndDate ? formatShortDate(state.overviewEndDate) : "today";
+  return `Showing ${entryCount} item${entryCount === 1 ? "" : "s"} from ${fromLabel} to ${toLabel}`;
+}
+
+function getOverviewHint(filteredEntries, latestOverallEntry) {
+  if (filteredEntries.length) {
+    return `Latest in range: ${filteredEntries[0].title} on ${formatShortDateTime(filteredEntries[0].createdAt)}`;
+  }
+
+  if (state.overviewStartDate || state.overviewEndDate) {
+    return latestOverallEntry
+      ? `No entries in this range. Latest overall: ${latestOverallEntry.title} on ${formatShortDateTime(latestOverallEntry.createdAt)}`
+      : "No entries yet";
+  }
+
+  return "No entries yet";
+}
+
+function createLegendItem(kind, label, amount, total) {
+  const item = document.createElement("div");
+  item.className = "pie-legend-item";
+
+  const copy = document.createElement("div");
+  copy.className = "pie-legend-copy";
+
+  const dot = document.createElement("span");
+  dot.className = `pie-dot ${kind}-dot`;
+
+  const text = document.createElement("span");
+  text.textContent = label;
+
+  const value = document.createElement("span");
+  value.className = "pie-legend-value";
+  value.textContent = `${formatCurrency(amount)} (${formatPercent(total ? amount / total : 0)})`;
+
+  copy.append(dot, text);
+  item.append(copy, value);
+  return item;
+}
+
+function parseDateOnly(value) {
+  const [year, month, day] = value.split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
+
+function addDays(date, amount) {
+  const next = new Date(date);
+  next.setDate(next.getDate() + amount);
+  return next;
+}
+
+function formatPercent(value) {
+  return new Intl.NumberFormat(undefined, {
+    style: "percent",
+    maximumFractionDigits: 0
+  }).format(value || 0);
+}
+
 function setSyncStatus(message) {
-  elements.syncStatus.textContent = message;
+  if (elements.syncStatus) {
+    elements.syncStatus.textContent = message;
+  }
+
+  if (elements.authStatus) {
+    elements.authStatus.textContent = message;
+  }
 }
 
 function registerServiceWorker() {
