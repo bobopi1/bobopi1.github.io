@@ -198,21 +198,25 @@ function bindEvents() {
     button.addEventListener("click", () => setView(button.dataset.view));
   });
 
-  elements.goOverview.addEventListener("click", () => {
-    if (state.user) {
-      setView("overview");
-    } else {
-      elements.authEmail.focus();
-    }
-  });
+  if (elements.goOverview) {
+    elements.goOverview.addEventListener("click", () => {
+      if (state.user) {
+        setView("overview");
+      } else {
+        elements.authEmail.focus();
+      }
+    });
+  }
 
-  elements.installApp.addEventListener("click", () => {
-    if (typeof elements.installDialog.showModal === "function") {
-      elements.installDialog.showModal();
-    } else {
-      window.alert("Open this site in Safari on your iPhone, tap Share, then choose Add to Home Screen.");
-    }
-  });
+  if (elements.installApp) {
+    elements.installApp.addEventListener("click", () => {
+      if (typeof elements.installDialog.showModal === "function") {
+        elements.installDialog.showModal();
+      } else {
+        window.alert("Open this site in Safari on your iPhone, tap Share, then choose Add to Home Screen.");
+      }
+    });
+  }
 
   elements.authForm.addEventListener("submit", handleSignIn);
   elements.signUpButton.addEventListener("click", handleSignUp);

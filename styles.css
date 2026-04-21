@@ -63,9 +63,12 @@ textarea {
   display: grid;
   grid-template-columns: 1.3fr 0.7fr;
   gap: 20px;
-  padding: 28px;
+  padding: 34px;
   border-radius: calc(var(--radius) + 6px);
   margin-bottom: 18px;
+  overflow: hidden;
+  position: relative;
+  min-height: 280px;
 }
 
 .eyebrow,
@@ -96,12 +99,82 @@ textarea {
   color: var(--muted);
 }
 
-.hero-actions,
+.hero-text {
+  max-width: 34ch;
+  margin: 22px 0 0;
+  font-size: 1.14rem;
+}
+
 .user-actions {
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 12px;
+}
+
+.hero-scene {
+  position: relative;
+  min-height: 220px;
+}
+
+.scene-card {
+  position: absolute;
+  min-width: 190px;
+  padding: 18px 20px;
+  border-radius: 24px;
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow: 0 22px 48px rgba(17, 37, 61, 0.12);
+}
+
+.scene-card span,
+.scene-card strong {
+  display: block;
+}
+
+.scene-card span {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+.scene-card strong {
+  font-size: 1.35rem;
+  color: var(--ink);
+}
+
+.scene-card-balance {
+  top: 22px;
+  right: 30px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(225, 242, 255, 0.88));
+}
+
+.scene-card-accent {
+  right: 120px;
+  bottom: 26px;
+  background: linear-gradient(180deg, rgba(255, 247, 241, 0.96), rgba(255, 229, 215, 0.88));
+}
+
+.scene-orb {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(2px);
+}
+
+.scene-orb-warm {
+  width: 230px;
+  height: 230px;
+  right: -10px;
+  top: -14px;
+  background: radial-gradient(circle, rgba(249, 87, 56, 0.28), rgba(249, 87, 56, 0));
+}
+
+.scene-orb-cool {
+  width: 260px;
+  height: 260px;
+  right: 60px;
+  bottom: -80px;
+  background: radial-gradient(circle, rgba(32, 99, 155, 0.22), rgba(32, 99, 155, 0));
 }
 
 .config-banner {
@@ -685,6 +758,18 @@ button:focus {
     grid-template-columns: 1fr;
   }
 
+  .hero-scene {
+    min-height: 180px;
+  }
+
+  .scene-card-balance {
+    right: 24px;
+  }
+
+  .scene-card-accent {
+    right: 90px;
+  }
+
   .summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -706,7 +791,7 @@ button:focus {
   }
 
   .hero {
-    display: none;
+    min-height: 0;
   }
 
   .user-shell {
@@ -736,6 +821,32 @@ button:focus {
 
   .hero h1 {
     font-size: 2.3rem;
+  }
+
+  .hero-text {
+    font-size: 1rem;
+    margin-top: 16px;
+  }
+
+  .hero-scene {
+    min-height: 150px;
+    margin-top: 4px;
+  }
+
+  .scene-card {
+    min-width: 0;
+    width: 66%;
+    padding: 14px 16px;
+  }
+
+  .scene-card-balance {
+    right: 0;
+    top: 8px;
+  }
+
+  .scene-card-accent {
+    right: 44px;
+    bottom: 6px;
   }
 
   .summary-grid,

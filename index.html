@@ -17,13 +17,19 @@
       <div class="hero-copy">
         <p class="eyebrow">BudgetFlow Web</p>
         <h1>Stay on top of spending and revenue.</h1>
-        <p class="hero-text">
-          Sign in once, then keep your overview, spending, revenue, and recurring schedules synced across devices with Supabase-backed storage.
-        </p>
+        <p class="hero-text">A calmer way to track what comes in, what goes out, and what repeats.</p>
       </div>
-      <div class="hero-actions">
-        <button id="go-overview" class="primary-button" type="button">Open Overview</button>
-        <button id="install-app" class="secondary-button" type="button">Install Tips</button>
+      <div class="hero-scene" aria-hidden="true">
+        <div class="scene-card scene-card-balance">
+          <span>Monthly flow</span>
+          <strong>$4,280</strong>
+        </div>
+        <div class="scene-card scene-card-accent">
+          <span>Recurring</span>
+          <strong>Salary + Rent</strong>
+        </div>
+        <div class="scene-orb scene-orb-warm"></div>
+        <div class="scene-orb scene-orb-cool"></div>
       </div>
     </header>
 
@@ -43,10 +49,6 @@
           </div>
         </div>
 
-        <p class="auth-copy">
-          Your entries and recurring items are now stored per user in Supabase, so the same account will show the same budget on your phone, laptop, or tablet.
-        </p>
-
         <form id="auth-form" class="entry-form">
           <label>
             <span>Email</span>
@@ -65,10 +67,6 @@
         </form>
 
         <p id="auth-status" class="muted auth-status">Enter your email and password to sign in or create an account.</p>
-
-        <p class="muted auth-note">
-          If email confirmation is enabled in Supabase, new users may need to click the confirmation link before they can sign in.
-        </p>
       </article>
     </section>
 
