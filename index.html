@@ -64,6 +64,8 @@
           </div>
         </form>
 
+        <p id="auth-status" class="muted auth-status">Enter your email and password to sign in or create an account.</p>
+
         <p class="muted auth-note">
           If email confirmation is enabled in Supabase, new users may need to click the confirmation link before they can sign in.
         </p>
@@ -83,9 +85,18 @@
       </div>
 
       <nav class="page-nav" aria-label="Main pages">
-        <button class="page-tab is-active" type="button" data-view="overview">Overview</button>
-        <button class="page-tab" type="button" data-view="spending">Add Spending</button>
-        <button class="page-tab" type="button" data-view="revenue">Add Revenue</button>
+        <button class="page-tab is-active" type="button" data-view="overview">
+          <span class="page-tab-icon" aria-hidden="true">O</span>
+          <span class="page-tab-label">Overview</span>
+        </button>
+        <button class="page-tab" type="button" data-view="spending">
+          <span class="page-tab-icon" aria-hidden="true">-</span>
+          <span class="page-tab-label">Spending</span>
+        </button>
+        <button class="page-tab" type="button" data-view="revenue">
+          <span class="page-tab-icon" aria-hidden="true">+</span>
+          <span class="page-tab-label">Revenue</span>
+        </button>
       </nav>
 
       <main class="page-stack">
@@ -100,21 +111,42 @@
                 <p id="storage-status" class="muted">Stored in Supabase for this account</p>
               </div>
 
+              <div class="overview-filters">
+                <div class="filter-heading">
+                  <p class="filter-title">Date range</p>
+                  <p id="overview-filter-hint" class="muted">Showing all tracked dates</p>
+                </div>
+
+                <div class="filter-controls">
+                  <label>
+                    <span>From</span>
+                    <input id="overview-start-date" type="date">
+                  </label>
+
+                  <label>
+                    <span>To</span>
+                    <input id="overview-end-date" type="date">
+                  </label>
+
+                  <button id="clear-overview-dates" class="ghost-button filter-button" type="button">Clear Dates</button>
+                </div>
+              </div>
+
               <div class="summary-grid">
                 <article class="summary-card balance-card">
-                  <p>Current balance</p>
+                  <p>Range balance</p>
                   <h3 id="balance-value">$0.00</h3>
-                  <span>Manual plus recurring totals</span>
+                  <span>Income minus spending in this range</span>
                 </article>
                 <article class="summary-card spending-card">
-                  <p>Spent this week</p>
+                  <p>Range spending</p>
                   <h3 id="week-spent-value">$0.00</h3>
-                  <span id="week-income-hint">Income this week: $0.00</span>
+                  <span id="week-income-hint">Income in range: $0.00</span>
                 </article>
                 <article class="summary-card month-card">
-                  <p>Spent this month</p>
+                  <p>Range earnings</p>
                   <h3 id="month-spent-value">$0.00</h3>
-                  <span id="month-income-hint">Income this month: $0.00</span>
+                  <span id="month-income-hint">Spending in range: $0.00</span>
                 </article>
                 <article class="summary-card count-card">
                   <p>Tracked items</p>
@@ -127,12 +159,12 @@
             <section class="panel trend-panel">
               <div class="panel-heading">
                 <div>
-                  <p class="panel-kicker">Spending Trend</p>
-                  <h2>Recent totals</h2>
+                  <p class="panel-kicker">Range Breakdown</p>
+                  <h2>Income vs spending</h2>
                 </div>
-                <div class="segmented-mini" role="tablist" aria-label="Trend period">
-                  <button id="period-weekly" class="mini-button is-active" type="button">Weekly</button>
-                  <button id="period-monthly" class="mini-button" type="button">Monthly</button>
+                <div class="chart-totals">
+                  <p id="chart-income-total" class="chart-total income-total">Income: $0.00</p>
+                  <p id="chart-expense-total" class="chart-total expense-total">Spending: $0.00</p>
                 </div>
               </div>
 
