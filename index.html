@@ -15,6 +15,8 @@
   <div class="app-shell">
     <header class="hero">
       <div class="hero-grid"></div>
+      <div class="hero-ribbon hero-ribbon-a" aria-hidden="true"></div>
+      <div class="hero-ribbon hero-ribbon-b" aria-hidden="true"></div>
       <div class="hero-copy">
         <p class="eyebrow">BudgetFlow Web</p>
         <h1>Stay on top of spending and revenue.</h1>
@@ -26,6 +28,23 @@
         </div>
       </div>
       <div class="hero-scene" aria-hidden="true">
+        <div class="scene-phone">
+          <div class="scene-phone-notch"></div>
+          <div class="scene-phone-card scene-phone-card-balance">
+            <span>Balance</span>
+            <strong>$3,480</strong>
+          </div>
+          <div class="scene-phone-chart">
+            <span class="chart-slice chart-slice-income"></span>
+            <span class="chart-slice chart-slice-expense"></span>
+            <div class="scene-phone-chart-core"></div>
+          </div>
+          <div class="scene-phone-list">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
         <div class="scene-card scene-card-balance">
           <span>Monthly flow</span>
           <strong>$4,280</strong>
@@ -38,6 +57,21 @@
         <div class="scene-orb scene-orb-cool"></div>
       </div>
     </header>
+
+    <section class="auth-preview-strip" aria-hidden="true">
+      <article class="preview-tile preview-tile-income">
+        <span>Income rhythm</span>
+        <strong>Recurring deposits</strong>
+      </article>
+      <article class="preview-tile preview-tile-expense">
+        <span>Spending clarity</span>
+        <strong>Range filters</strong>
+      </article>
+      <article class="preview-tile preview-tile-history">
+        <span>Better memory</span>
+        <strong>Clean transaction history</strong>
+      </article>
+    </section>
 
     <section id="config-banner" class="config-banner hidden">
       <h2>Supabase configuration needed</h2>
