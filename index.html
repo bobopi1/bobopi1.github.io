@@ -18,7 +18,7 @@
         <p class="eyebrow">BudgetFlow Web</p>
         <h1>Stay on top of spending and revenue.</h1>
         <p class="hero-text">
-          Switch between overview, spending, and revenue pages. Add one-time entries fast, then set up recurring items like rent or salary so the dashboard stays current.
+          Sign in once, then keep your overview, spending, revenue, and recurring schedules synced across devices with Supabase-backed storage.
         </p>
       </div>
       <div class="hero-actions">
@@ -27,312 +27,368 @@
       </div>
     </header>
 
-    <nav class="page-nav" aria-label="Main pages">
-      <button class="page-tab is-active" type="button" data-view="overview">Overview</button>
-      <button class="page-tab" type="button" data-view="spending">Add Spending</button>
-      <button class="page-tab" type="button" data-view="revenue">Add Revenue</button>
-    </nav>
+    <section id="config-banner" class="config-banner hidden">
+      <h2>Supabase configuration needed</h2>
+      <p>
+        Add your Supabase project URL and public publishable or anon key in <code>supabase-config.js</code>, then refresh the page.
+      </p>
+    </section>
 
-    <main class="page-stack">
-      <section id="view-overview" class="page-view is-active">
-        <div class="layout">
-          <section class="panel summary-panel">
-            <div class="panel-heading">
-              <div>
-                <p class="panel-kicker">Overview</p>
-                <h2>Your snapshot</h2>
-              </div>
-              <p id="storage-status" class="muted">Saved locally on this device</p>
-            </div>
-
-            <div class="summary-grid">
-              <article class="summary-card balance-card">
-                <p>Current balance</p>
-                <h3 id="balance-value">$0.00</h3>
-                <span>Manual plus recurring totals</span>
-              </article>
-              <article class="summary-card spending-card">
-                <p>Spent this week</p>
-                <h3 id="week-spent-value">$0.00</h3>
-                <span id="week-income-hint">Income this week: $0.00</span>
-              </article>
-              <article class="summary-card month-card">
-                <p>Spent this month</p>
-                <h3 id="month-spent-value">$0.00</h3>
-                <span id="month-income-hint">Income this month: $0.00</span>
-              </article>
-              <article class="summary-card count-card">
-                <p>Tracked items</p>
-                <h3 id="entry-count-value">0</h3>
-                <span id="last-entry-hint">No entries yet</span>
-              </article>
-            </div>
-          </section>
-
-          <section class="panel trend-panel">
-            <div class="panel-heading">
-              <div>
-                <p class="panel-kicker">Spending Trend</p>
-                <h2>Recent totals</h2>
-              </div>
-              <div class="segmented-mini" role="tablist" aria-label="Trend period">
-                <button id="period-weekly" class="mini-button is-active" type="button">Weekly</button>
-                <button id="period-monthly" class="mini-button" type="button">Monthly</button>
-              </div>
-            </div>
-
-            <div id="trend-chart" class="trend-chart"></div>
-          </section>
-
-          <section class="panel recurring-panel">
-            <div class="panel-heading">
-              <div>
-                <p class="panel-kicker">Recurring</p>
-                <h2>Active schedules</h2>
-              </div>
-              <p id="recurring-summary" class="muted">No recurring items yet</p>
-            </div>
-
-            <div id="recurring-list" class="recurring-list"></div>
-          </section>
-
-          <section class="panel history-panel">
-            <div class="panel-heading">
-              <div>
-                <p class="panel-kicker">History</p>
-                <h2>Past entries</h2>
-              </div>
-              <div class="history-tools">
-                <input id="search" class="search-input" type="search" placeholder="Search title, category, or note">
-                <select id="history-filter" aria-label="Filter history">
-                  <option value="all">All</option>
-                  <option value="expense">Spending</option>
-                  <option value="income">Earnings</option>
-                </select>
-              </div>
-            </div>
-
-            <div id="history-list" class="history-list"></div>
-          </section>
+    <section id="auth-shell" class="auth-shell">
+      <article class="panel auth-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="panel-kicker">Account</p>
+            <h2>Sign in to sync your data</h2>
+          </div>
         </div>
-      </section>
 
-      <section id="view-spending" class="page-view">
-        <div class="form-layout">
-          <section class="panel form-panel">
-            <div class="panel-heading">
-              <div>
-                <p class="panel-kicker">Spending</p>
-                <h2>Add a one-time spending item</h2>
-              </div>
-            </div>
+        <p class="auth-copy">
+          Your entries and recurring items are now stored per user in Supabase, so the same account will show the same budget on your phone, laptop, or tablet.
+        </p>
 
-            <form id="expense-form" class="entry-form">
-              <label>
-                <span>Title</span>
-                <input id="expense-title" name="title" type="text" placeholder="Groceries, gas, coffee..." required>
-              </label>
+        <form id="auth-form" class="entry-form">
+          <label>
+            <span>Email</span>
+            <input id="auth-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+          </label>
 
-              <div class="form-row">
-                <label>
-                  <span>Amount</span>
-                  <input id="expense-amount" name="amount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00" required>
-                </label>
+          <label>
+            <span>Password</span>
+            <input id="auth-password" name="password" type="password" autocomplete="current-password" placeholder="At least 6 characters" required>
+          </label>
 
-                <label>
-                  <span>Category</span>
-                  <select id="expense-category" name="category"></select>
-                </label>
-              </div>
+          <div class="form-actions">
+            <button id="sign-in-button" class="primary-button" type="submit">Sign In</button>
+            <button id="sign-up-button" class="ghost-button" type="button">Create Account</button>
+          </div>
+        </form>
 
-              <div class="form-row">
-                <label>
-                  <span>Date</span>
-                  <input id="expense-date" name="date" type="date" required>
-                </label>
+        <p class="muted auth-note">
+          If email confirmation is enabled in Supabase, new users may need to click the confirmation link before they can sign in.
+        </p>
+      </article>
+    </section>
 
-                <label>
-                  <span>Time</span>
-                  <input id="expense-time" name="time" type="time" required>
-                </label>
-              </div>
+    <section id="user-shell" class="user-shell hidden">
+      <div class="user-bar panel">
+        <div>
+          <p class="panel-kicker">Signed In</p>
+          <h2 id="user-email">you@example.com</h2>
+        </div>
+        <div class="user-actions">
+          <span id="sync-status" class="muted">Syncing...</span>
+          <button id="sign-out-button" class="ghost-button" type="button">Sign Out</button>
+        </div>
+      </div>
 
-              <label>
-                <span>Notes</span>
-                <textarea id="expense-notes" name="notes" rows="3" placeholder="Optional note"></textarea>
-              </label>
+      <nav class="page-nav" aria-label="Main pages">
+        <button class="page-tab is-active" type="button" data-view="overview">Overview</button>
+        <button class="page-tab" type="button" data-view="spending">Add Spending</button>
+        <button class="page-tab" type="button" data-view="revenue">Add Revenue</button>
+      </nav>
 
-              <div class="form-actions">
-                <button class="primary-button expense-button" type="submit">Save Spending</button>
-                <button class="ghost-button" type="button" data-reset-form="expense">Clear</button>
-              </div>
-            </form>
-          </section>
-
-          <section class="panel recurring-form-panel">
-            <div class="panel-heading">
-              <div>
-                <p class="panel-kicker">Recurring Spending</p>
-                <h2>Add a recurring transaction</h2>
-              </div>
-            </div>
-
-            <form id="expense-recurring-form" class="entry-form">
-              <label>
-                <span>Title</span>
-                <input id="expense-recurring-title" name="title" type="text" placeholder="Rent, gym, insurance..." required>
-              </label>
-
-              <div class="form-row">
-                <label>
-                  <span>Amount</span>
-                  <input id="expense-recurring-amount" name="amount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00" required>
-                </label>
-
-                <label>
-                  <span>Category</span>
-                  <select id="expense-recurring-category" name="category"></select>
-                </label>
+      <main class="page-stack">
+        <section id="view-overview" class="page-view is-active">
+          <div class="layout">
+            <section class="panel summary-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="panel-kicker">Overview</p>
+                  <h2>Your snapshot</h2>
+                </div>
+                <p id="storage-status" class="muted">Stored in Supabase for this account</p>
               </div>
 
-              <div class="form-row">
-                <label>
-                  <span>Frequency</span>
-                  <select id="expense-recurring-frequency" name="frequency">
-                    <option value="weekly">Weekly</option>
-                    <option value="biweekly">Every 2 weeks</option>
-                    <option value="monthly">Monthly</option>
+              <div class="summary-grid">
+                <article class="summary-card balance-card">
+                  <p>Current balance</p>
+                  <h3 id="balance-value">$0.00</h3>
+                  <span>Manual plus recurring totals</span>
+                </article>
+                <article class="summary-card spending-card">
+                  <p>Spent this week</p>
+                  <h3 id="week-spent-value">$0.00</h3>
+                  <span id="week-income-hint">Income this week: $0.00</span>
+                </article>
+                <article class="summary-card month-card">
+                  <p>Spent this month</p>
+                  <h3 id="month-spent-value">$0.00</h3>
+                  <span id="month-income-hint">Income this month: $0.00</span>
+                </article>
+                <article class="summary-card count-card">
+                  <p>Tracked items</p>
+                  <h3 id="entry-count-value">0</h3>
+                  <span id="last-entry-hint">No entries yet</span>
+                </article>
+              </div>
+            </section>
+
+            <section class="panel trend-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="panel-kicker">Spending Trend</p>
+                  <h2>Recent totals</h2>
+                </div>
+                <div class="segmented-mini" role="tablist" aria-label="Trend period">
+                  <button id="period-weekly" class="mini-button is-active" type="button">Weekly</button>
+                  <button id="period-monthly" class="mini-button" type="button">Monthly</button>
+                </div>
+              </div>
+
+              <div id="trend-chart" class="trend-chart"></div>
+            </section>
+
+            <section class="panel recurring-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="panel-kicker">Recurring</p>
+                  <h2>Active schedules</h2>
+                </div>
+                <p id="recurring-summary" class="muted">No recurring items yet</p>
+              </div>
+
+              <div id="recurring-list" class="recurring-list"></div>
+            </section>
+
+            <section class="panel history-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="panel-kicker">History</p>
+                  <h2>Past entries</h2>
+                </div>
+                <div class="history-tools">
+                  <input id="search" class="search-input" type="search" placeholder="Search title, category, or note">
+                  <select id="history-filter" aria-label="Filter history">
+                    <option value="all">All</option>
+                    <option value="expense">Spending</option>
+                    <option value="income">Earnings</option>
                   </select>
+                </div>
+              </div>
+
+              <div id="history-list" class="history-list"></div>
+            </section>
+          </div>
+        </section>
+
+        <section id="view-spending" class="page-view">
+          <div class="form-layout">
+            <section class="panel form-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="panel-kicker">Spending</p>
+                  <h2>Add a one-time spending item</h2>
+                </div>
+              </div>
+
+              <form id="expense-form" class="entry-form">
+                <label>
+                  <span>Title</span>
+                  <input id="expense-title" name="title" type="text" placeholder="Groceries, gas, coffee..." required>
                 </label>
+
+                <div class="form-row">
+                  <label>
+                    <span>Amount</span>
+                    <input id="expense-amount" name="amount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00" required>
+                  </label>
+
+                  <label>
+                    <span>Category</span>
+                    <select id="expense-category" name="category"></select>
+                  </label>
+                </div>
+
+                <div class="form-row">
+                  <label>
+                    <span>Date</span>
+                    <input id="expense-date" name="date" type="date" required>
+                  </label>
+
+                  <label>
+                    <span>Time</span>
+                    <input id="expense-time" name="time" type="time" required>
+                  </label>
+                </div>
 
                 <label>
-                  <span>Start date</span>
-                  <input id="expense-recurring-start" name="startDate" type="date" required>
+                  <span>Notes</span>
+                  <textarea id="expense-notes" name="notes" rows="3" placeholder="Optional note"></textarea>
                 </label>
+
+                <div class="form-actions">
+                  <button class="primary-button expense-button" type="submit">Save Spending</button>
+                  <button class="ghost-button" type="button" data-reset-form="expense">Clear</button>
+                </div>
+              </form>
+            </section>
+
+            <section class="panel recurring-form-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="panel-kicker">Recurring Spending</p>
+                  <h2>Add a recurring transaction</h2>
+                </div>
               </div>
 
-              <label>
-                <span>Notes</span>
-                <textarea id="expense-recurring-notes" name="notes" rows="3" placeholder="Optional note"></textarea>
-              </label>
-
-              <div class="form-actions">
-                <button class="primary-button expense-button" type="submit">Save Recurring Spending</button>
-                <button class="ghost-button" type="button" data-reset-form="expense-recurring">Clear</button>
-              </div>
-            </form>
-          </section>
-        </div>
-      </section>
-
-      <section id="view-revenue" class="page-view">
-        <div class="form-layout">
-          <section class="panel form-panel">
-            <div class="panel-heading">
-              <div>
-                <p class="panel-kicker">Revenue</p>
-                <h2>Add a one-time earning</h2>
-              </div>
-            </div>
-
-            <form id="income-form" class="entry-form">
-              <label>
-                <span>Title</span>
-                <input id="income-title" name="title" type="text" placeholder="Salary bonus, freelance job..." required>
-              </label>
-
-              <div class="form-row">
+              <form id="expense-recurring-form" class="entry-form">
                 <label>
-                  <span>Amount</span>
-                  <input id="income-amount" name="amount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00" required>
+                  <span>Title</span>
+                  <input id="expense-recurring-title" name="title" type="text" placeholder="Rent, gym, insurance..." required>
                 </label>
 
-                <label>
-                  <span>Category</span>
-                  <select id="income-category" name="category"></select>
-                </label>
-              </div>
+                <div class="form-row">
+                  <label>
+                    <span>Amount</span>
+                    <input id="expense-recurring-amount" name="amount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00" required>
+                  </label>
 
-              <div class="form-row">
-                <label>
-                  <span>Date</span>
-                  <input id="income-date" name="date" type="date" required>
-                </label>
+                  <label>
+                    <span>Category</span>
+                    <select id="expense-recurring-category" name="category"></select>
+                  </label>
+                </div>
 
-                <label>
-                  <span>Time</span>
-                  <input id="income-time" name="time" type="time" required>
-                </label>
-              </div>
+                <div class="form-row">
+                  <label>
+                    <span>Frequency</span>
+                    <select id="expense-recurring-frequency" name="frequency">
+                      <option value="weekly">Weekly</option>
+                      <option value="biweekly">Every 2 weeks</option>
+                      <option value="monthly">Monthly</option>
+                    </select>
+                  </label>
 
-              <label>
-                <span>Notes</span>
-                <textarea id="income-notes" name="notes" rows="3" placeholder="Optional note"></textarea>
-              </label>
-
-              <div class="form-actions">
-                <button class="primary-button income-button" type="submit">Save Revenue</button>
-                <button class="ghost-button" type="button" data-reset-form="income">Clear</button>
-              </div>
-            </form>
-          </section>
-
-          <section class="panel recurring-form-panel">
-            <div class="panel-heading">
-              <div>
-                <p class="panel-kicker">Recurring Revenue</p>
-                <h2>Add a recurring earning</h2>
-              </div>
-            </div>
-
-            <form id="income-recurring-form" class="entry-form">
-              <label>
-                <span>Title</span>
-                <input id="income-recurring-title" name="title" type="text" placeholder="Salary, recurring client..." required>
-              </label>
-
-              <div class="form-row">
-                <label>
-                  <span>Amount</span>
-                  <input id="income-recurring-amount" name="amount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00" required>
-                </label>
+                  <label>
+                    <span>Start date</span>
+                    <input id="expense-recurring-start" name="startDate" type="date" required>
+                  </label>
+                </div>
 
                 <label>
-                  <span>Category</span>
-                  <select id="income-recurring-category" name="category"></select>
+                  <span>Notes</span>
+                  <textarea id="expense-recurring-notes" name="notes" rows="3" placeholder="Optional note"></textarea>
                 </label>
+
+                <div class="form-actions">
+                  <button class="primary-button expense-button" type="submit">Save Recurring Spending</button>
+                  <button class="ghost-button" type="button" data-reset-form="expense-recurring">Clear</button>
+                </div>
+              </form>
+            </section>
+          </div>
+        </section>
+
+        <section id="view-revenue" class="page-view">
+          <div class="form-layout">
+            <section class="panel form-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="panel-kicker">Revenue</p>
+                  <h2>Add a one-time earning</h2>
+                </div>
               </div>
 
-              <div class="form-row">
+              <form id="income-form" class="entry-form">
                 <label>
-                  <span>Frequency</span>
-                  <select id="income-recurring-frequency" name="frequency">
-                    <option value="weekly">Weekly</option>
-                    <option value="biweekly">Every 2 weeks</option>
-                    <option value="monthly">Monthly</option>
-                  </select>
+                  <span>Title</span>
+                  <input id="income-title" name="title" type="text" placeholder="Salary bonus, freelance job..." required>
                 </label>
+
+                <div class="form-row">
+                  <label>
+                    <span>Amount</span>
+                    <input id="income-amount" name="amount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00" required>
+                  </label>
+
+                  <label>
+                    <span>Category</span>
+                    <select id="income-category" name="category"></select>
+                  </label>
+                </div>
+
+                <div class="form-row">
+                  <label>
+                    <span>Date</span>
+                    <input id="income-date" name="date" type="date" required>
+                  </label>
+
+                  <label>
+                    <span>Time</span>
+                    <input id="income-time" name="time" type="time" required>
+                  </label>
+                </div>
 
                 <label>
-                  <span>Start date</span>
-                  <input id="income-recurring-start" name="startDate" type="date" required>
+                  <span>Notes</span>
+                  <textarea id="income-notes" name="notes" rows="3" placeholder="Optional note"></textarea>
                 </label>
+
+                <div class="form-actions">
+                  <button class="primary-button income-button" type="submit">Save Revenue</button>
+                  <button class="ghost-button" type="button" data-reset-form="income">Clear</button>
+                </div>
+              </form>
+            </section>
+
+            <section class="panel recurring-form-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="panel-kicker">Recurring Revenue</p>
+                  <h2>Add a recurring earning</h2>
+                </div>
               </div>
 
-              <label>
-                <span>Notes</span>
-                <textarea id="income-recurring-notes" name="notes" rows="3" placeholder="Optional note"></textarea>
-              </label>
+              <form id="income-recurring-form" class="entry-form">
+                <label>
+                  <span>Title</span>
+                  <input id="income-recurring-title" name="title" type="text" placeholder="Salary, recurring client..." required>
+                </label>
 
-              <div class="form-actions">
-                <button class="primary-button income-button" type="submit">Save Recurring Revenue</button>
-                <button class="ghost-button" type="button" data-reset-form="income-recurring">Clear</button>
-              </div>
-            </form>
-          </section>
-        </div>
-      </section>
-    </main>
+                <div class="form-row">
+                  <label>
+                    <span>Amount</span>
+                    <input id="income-recurring-amount" name="amount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00" required>
+                  </label>
+
+                  <label>
+                    <span>Category</span>
+                    <select id="income-recurring-category" name="category"></select>
+                  </label>
+                </div>
+
+                <div class="form-row">
+                  <label>
+                    <span>Frequency</span>
+                    <select id="income-recurring-frequency" name="frequency">
+                      <option value="weekly">Weekly</option>
+                      <option value="biweekly">Every 2 weeks</option>
+                      <option value="monthly">Monthly</option>
+                    </select>
+                  </label>
+
+                  <label>
+                    <span>Start date</span>
+                    <input id="income-recurring-start" name="startDate" type="date" required>
+                  </label>
+                </div>
+
+                <label>
+                  <span>Notes</span>
+                  <textarea id="income-recurring-notes" name="notes" rows="3" placeholder="Optional note"></textarea>
+                </label>
+
+                <div class="form-actions">
+                  <button class="primary-button income-button" type="submit">Save Recurring Revenue</button>
+                  <button class="ghost-button" type="button" data-reset-form="income-recurring">Clear</button>
+                </div>
+              </form>
+            </section>
+          </div>
+        </section>
+      </main>
+    </section>
   </div>
 
   <template id="history-item-template">
@@ -368,13 +424,14 @@
     <div class="dialog-content">
       <h2>Install on iPhone</h2>
       <p>Open this app in Safari, tap the Share button, then choose <strong>Add to Home Screen</strong>.</p>
-      <p>The app will save your entries locally in Safari on that iPhone.</p>
+      <p>The app will keep your session local on that device, but your budget data will sync through Supabase after sign-in.</p>
       <form method="dialog">
         <button class="primary-button" type="submit">Close</button>
       </form>
     </div>
   </dialog>
 
-  <script src="app.js" defer></script>
+  <script src="supabase-config.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>

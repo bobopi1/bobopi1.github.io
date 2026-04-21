@@ -1,24 +1,45 @@
 # BudgetFlow Web
 
-`BudgetFlow Web` is a browser-based budgeting app that runs on Windows and can be opened on your iPhone through Safari.
+`BudgetFlow Web` is a browser-based budgeting app hosted as static files and now backed by Supabase for sign-in and synced storage.
 
-## Features
+## What changed
 
-- add spending and earnings quickly
-- see your current balance
-- track totals for this week and this month
-- view weekly or monthly spending trends
-- search and filter your history
-- save everything locally in the browser with no account required
+- users sign in with email and password
+- entries are stored in Supabase, not only in browser storage
+- recurring items are stored per user and sync across devices
+- existing local data can be imported into Supabase the first time a user signs in on a device
 
 ## Files
 
-- `index.html`: app shell
+- `index.html`: app shell and auth UI
 - `styles.css`: UI styling
-- `app.js`: app logic and storage
+- `app.js`: auth, sync, app logic
+- `supabase-config.js`: your project URL and public key
+- `supabase-setup.sql`: tables and row-level security policies
 - `manifest.webmanifest`: PWA metadata
 - `sw.js`: offline cache
 - `start-server.ps1`: local server for Windows
+
+## Supabase setup
+
+1. Create a Supabase project.
+2. In the Supabase SQL editor, run the contents of `supabase-setup.sql`.
+3. In `Authentication -> Sign In / Providers`, make sure Email is enabled.
+4. In `Authentication -> URL Configuration`, set:
+   - `Site URL` to your GitHub Pages URL
+   - add the same GitHub Pages URL under redirect URLs
+5. Edit `supabase-config.js` and set:
+
+```js
+window.BUDGETFLOW_SUPABASE_URL = "https://YOUR_PROJECT.supabase.co";
+window.BUDGETFLOW_SUPABASE_KEY = "YOUR_PUBLIC_PUBLISHABLE_OR_ANON_KEY";
+```
+
+## Important note about the public key
+
+The key used in `supabase-config.js` is intended to be public in a browser app. The protection comes from Row Level Security policies in `supabase-setup.sql`, which restrict each signed-in user to their own data.
+
+Never put a Supabase `service_role` key in this app or in a public repository.
 
 ## Run on Windows
 
@@ -29,47 +50,40 @@
 powershell -ExecutionPolicy Bypass -File .\start-server.ps1
 ```
 
-3. On this PC, open:
+3. Open:
 
 ```text
 http://localhost:8080
 ```
 
-## Open it on your iPhone
+## Open on iPhone
 
 1. Make sure your iPhone and Windows PC are on the same Wi-Fi network.
-2. Find your PC's local IP address:
+2. Find your PC's IPv4 address:
 
 ```powershell
 ipconfig
 ```
 
-Look for the IPv4 address, such as `192.168.1.25`.
-
-3. On your iPhone, open Safari and go to:
+3. In Safari on your iPhone, open:
 
 ```text
 http://YOUR-PC-IP:8080
 ```
 
-Example:
+4. Use Share -> `Add to Home Screen`.
 
-```text
-http://192.168.1.25:8080
-```
+## Hosting on GitHub Pages
 
-4. In Safari, tap Share, then tap `Add to Home Screen`.
+This app works well on GitHub Pages because the frontend is static. Supabase handles:
 
-## Notes
+- authentication
+- synced database storage
+- per-user data isolation
 
-- The app stores data in the browser on each device.
-- Entries saved on your PC stay on your PC's browser storage.
-- Entries saved on your iPhone stay on your iPhone's browser storage.
-- If Windows asks about firewall access when the server starts, allow it for your local network.
+## Official docs used
 
-## Good next steps
-
-- add category budgets
-- sync data across devices
-- export to CSV
-- add recurring transactions
+- GitHub Pages: https://docs.github.com/en/pages/getting-started-with-github-pages/about-github-pages
+- Supabase Auth: https://supabase.com/docs/guides/auth/passwords
+- Supabase JS client: https://supabase.com/docs/reference/javascript/auth-api
+- Supabase Row Level Security: https://supabase.com/docs/guides/database/postgres/row-level-security

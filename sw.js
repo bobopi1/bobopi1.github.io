@@ -1,4 +1,4 @@
-const CACHE_NAME = "budgetflow-web-cache-v1";
+const CACHE_NAME = "budgetflow-web-cache-v2";
 const ASSETS = [
   "./",
   "./index.html",
@@ -28,6 +28,12 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") {
+    return;
+  }
+
+  const requestURL = new URL(event.request.url);
+  if (requestURL.origin === self.location.origin && requestURL.pathname.endsWith("/supabase-config.js")) {
+    event.respondWith(fetch(event.request));
     return;
   }
 

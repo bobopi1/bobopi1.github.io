@@ -1,5 +1,8 @@
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
 const STORAGE_KEY = "budgetflow-web-data-v2";
 const LEGACY_ENTRY_KEY = "budgetflow-web-entries-v1";
+const LEGACY_IMPORT_PREFIX = "budgetflow-supabase-imported";
 
 const categories = {
   expense: [
@@ -34,7 +37,10 @@ const state = {
   recurringItems: [],
   trendPeriod: "weekly",
   filter: "all",
-  search: ""
+  search: "",
+  supabase: null,
+  user: null,
+  configReady: false
 };
 
 const forms = {
@@ -84,6 +90,16 @@ const recurringForms = {
 };
 
 const elements = {
+  authShell: document.querySelector("#auth-shell"),
+  userShell: document.querySelector("#user-shell"),
+  configBanner: document.querySelector("#config-banner"),
+  authForm: document.querySelector("#auth-form"),
+  authEmail: document.querySelector("#auth-email"),
+  authPassword: document.querySelector("#auth-password"),
+  signUpButton: document.querySelector("#sign-up-button"),
+  signOutButton: document.querySelector("#sign-out-button"),
+  userEmail: document.querySelector("#user-email"),
+  syncStatus: document.querySelector("#sync-status"),
   pageTabs: Array.from(document.querySelectorAll(".page-tab")),
   views: {
     overview: document.querySelector("#view-overview"),
@@ -114,20 +130,55 @@ const elements = {
   recurringItemTemplate: document.querySelector("#recurring-item-template")
 };
 
-bootstrap();
+bootstrap().catch((error) => {
+  console.error("Startup failed", error);
+  setSyncStatus("Startup failed. Check your config and try again.");
+});
 
-function bootstrap() {
-  hydrateState();
+async function bootstrap() {
   setDefaultFieldValues();
   bindEvents();
-  render();
+  state.configReady = initializeSupabase();
+  renderShell();
+
+  if (!state.configReady) {
+    setSyncStatus("Supabase config missing");
+    registerServiceWorker();
+    return;
+  }
+
+  const {
+    data: { session }
+  } = await state.supabase.auth.getSession();
+
+  await handleSessionChange(session);
+
+  state.supabase.auth.onAuthStateChange(async (_event, sessionData) => {
+    await handleSessionChange(sessionData);
+  });
+
   registerServiceWorker();
 }
 
-function hydrateState() {
-  const persistedData = loadData();
-  state.entries = persistedData.entries;
-  state.recurringItems = persistedData.recurringItems;
+function initializeSupabase() {
+  const url = window.BUDGETFLOW_SUPABASE_URL;
+  const key = window.BUDGETFLOW_SUPABASE_KEY;
+
+  if (!url || !key || url.includes("YOUR_") || key.includes("YOUR_")) {
+    elements.configBanner.classList.remove("hidden");
+    return false;
+  }
+
+  state.supabase = createClient(url, key, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true
+    }
+  });
+
+  elements.configBanner.classList.add("hidden");
+  return true;
 }
 
 function bindEvents() {
@@ -135,7 +186,14 @@ function bindEvents() {
     button.addEventListener("click", () => setView(button.dataset.view));
   });
 
-  elements.goOverview.addEventListener("click", () => setView("overview"));
+  elements.goOverview.addEventListener("click", () => {
+    if (state.user) {
+      setView("overview");
+    } else {
+      elements.authEmail.focus();
+    }
+  });
+
   elements.installApp.addEventListener("click", () => {
     if (typeof elements.installDialog.showModal === "function") {
       elements.installDialog.showModal();
@@ -143,6 +201,10 @@ function bindEvents() {
       window.alert("Open this site in Safari on your iPhone, tap Share, then choose Add to Home Screen.");
     }
   });
+
+  elements.authForm.addEventListener("submit", handleSignIn);
+  elements.signUpButton.addEventListener("click", handleSignUp);
+  elements.signOutButton.addEventListener("click", handleSignOut);
 
   Object.values(forms).forEach((form) => {
     form.element.addEventListener("submit", (event) => handleEntrySubmit(event, form));
@@ -170,7 +232,189 @@ function bindEvents() {
   elements.periodMonthly.addEventListener("click", () => setTrendPeriod("monthly"));
 }
 
-function handleEntrySubmit(event, form) {
+async function handleSessionChange(session) {
+  state.user = session?.user ?? null;
+  renderShell();
+
+  if (!state.user) {
+    state.entries = [];
+    state.recurringItems = [];
+    render();
+    setSyncStatus(state.configReady ? "Sign in to load your data" : "Supabase config missing");
+    return;
+  }
+
+  elements.userEmail.textContent = state.user.email ?? "Signed in";
+  setSyncStatus("Loading your data...");
+  await refreshRemoteData(true);
+}
+
+async function handleSignIn(event) {
+  event.preventDefault();
+
+  if (!state.configReady) {
+    return;
+  }
+
+  const email = elements.authEmail.value.trim();
+  const password = elements.authPassword.value;
+
+  if (!email || !password) {
+    setSyncStatus("Enter your email and password first.");
+    return;
+  }
+
+  setSyncStatus("Signing in...");
+
+  const { error } = await state.supabase.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    setSyncStatus(error.message);
+  }
+}
+
+async function handleSignUp() {
+  if (!state.configReady) {
+    return;
+  }
+
+  const email = elements.authEmail.value.trim();
+  const password = elements.authPassword.value;
+
+  if (!email || !password) {
+    setSyncStatus("Enter an email and password to create an account.");
+    return;
+  }
+
+  setSyncStatus("Creating account...");
+
+  const redirectTo = `${window.location.origin}${window.location.pathname}`;
+  const { data, error } = await state.supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: redirectTo
+    }
+  });
+
+  if (error) {
+    setSyncStatus(error.message);
+    return;
+  }
+
+  if (!data.session) {
+    setSyncStatus("Account created. Check your email to confirm, then sign in.");
+  }
+}
+
+async function handleSignOut() {
+  if (!state.supabase) {
+    return;
+  }
+
+  setSyncStatus("Signing out...");
+  const { error } = await state.supabase.auth.signOut();
+  if (error) {
+    setSyncStatus(error.message);
+  }
+}
+
+async function refreshRemoteData(allowLegacyImport = false) {
+  if (!state.user || !state.supabase) {
+    return;
+  }
+
+  const entriesResult = await state.supabase
+    .from("budget_entries")
+    .select("*")
+    .order("occurred_at", { ascending: false });
+
+  const recurringResult = await state.supabase
+    .from("recurring_items")
+    .select("*")
+    .order("start_date", { ascending: false });
+
+  if (entriesResult.error || recurringResult.error) {
+    setSyncStatus(entriesResult.error?.message || recurringResult.error?.message || "Could not load your data.");
+    return;
+  }
+
+  state.entries = entriesResult.data.map(normalizeEntryRow);
+  state.recurringItems = recurringResult.data.map(normalizeRecurringRow);
+
+  if (
+    allowLegacyImport &&
+    state.entries.length === 0 &&
+    state.recurringItems.length === 0 &&
+    shouldImportLegacyData(state.user.id)
+  ) {
+    const imported = await importLegacyLocalData();
+    if (imported) {
+      await refreshRemoteData(false);
+      setSyncStatus("Imported your existing local data into synced storage.");
+      return;
+    }
+  }
+
+  render();
+  setSyncStatus("Synced");
+}
+
+async function importLegacyLocalData() {
+  const legacyData = loadLegacyLocalData();
+
+  if (!legacyData.entries.length && !legacyData.recurringItems.length) {
+    markLegacyImported(state.user.id);
+    return false;
+  }
+
+  if (legacyData.entries.length) {
+    const { error } = await state.supabase.from("budget_entries").insert(
+      legacyData.entries.map((entry) => ({
+        user_id: state.user.id,
+        kind: entry.kind,
+        title: entry.title,
+        amount: entry.amount,
+        category: entry.category,
+        notes: entry.notes,
+        occurred_at: entry.createdAt
+      }))
+    );
+
+    if (error) {
+      setSyncStatus(`Import failed: ${error.message}`);
+      return false;
+    }
+  }
+
+  if (legacyData.recurringItems.length) {
+    const { error } = await state.supabase.from("recurring_items").insert(
+      legacyData.recurringItems.map((item) => ({
+        user_id: state.user.id,
+        kind: item.kind,
+        title: item.title,
+        amount: item.amount,
+        category: item.category,
+        notes: item.notes,
+        frequency: item.frequency,
+        start_date: item.startDate
+      }))
+    );
+
+    if (error) {
+      setSyncStatus(`Recurring import failed: ${error.message}`);
+      return false;
+    }
+  }
+
+  markLegacyImported(state.user.id);
+  return true;
+}
+
+async function handleEntrySubmit(event, form) {
   event.preventDefault();
 
   const title = form.title.value.trim();
@@ -184,23 +428,30 @@ function handleEntrySubmit(event, form) {
     return;
   }
 
-  state.entries.unshift({
-    id: createId("entry"),
+  setSyncStatus("Saving entry...");
+
+  const occurredAt = new Date(`${date}T${time}`).toISOString();
+  const { error } = await state.supabase.from("budget_entries").insert({
+    user_id: state.user.id,
     kind: form.kind,
     title,
     amount,
     category,
     notes,
-    createdAt: new Date(`${date}T${time}`).toISOString()
+    occurred_at: occurredAt
   });
 
-  saveData();
+  if (error) {
+    setSyncStatus(error.message);
+    return;
+  }
+
   resetNamedForm(form.kind);
   setView("overview");
-  render();
+  await refreshRemoteData(false);
 }
 
-function handleRecurringSubmit(event, form) {
+async function handleRecurringSubmit(event, form) {
   event.preventDefault();
 
   const title = form.title.value.trim();
@@ -214,21 +465,47 @@ function handleRecurringSubmit(event, form) {
     return;
   }
 
-  state.recurringItems.unshift({
-    id: createId("recurring"),
+  setSyncStatus("Saving recurring item...");
+
+  const { error } = await state.supabase.from("recurring_items").insert({
+    user_id: state.user.id,
     kind: form.kind,
     title,
     amount,
     category,
     notes,
     frequency,
-    startDate
+    start_date: startDate
   });
 
-  saveData();
+  if (error) {
+    setSyncStatus(error.message);
+    return;
+  }
+
   resetNamedForm(`${form.kind}-recurring`);
   setView("overview");
-  render();
+  await refreshRemoteData(false);
+}
+
+async function deleteEntry(id) {
+  setSyncStatus("Deleting entry...");
+  const { error } = await state.supabase.from("budget_entries").delete().eq("id", id);
+  if (error) {
+    setSyncStatus(error.message);
+    return;
+  }
+  await refreshRemoteData(false);
+}
+
+async function deleteRecurringRule(id) {
+  setSyncStatus("Deleting recurring rule...");
+  const { error } = await state.supabase.from("recurring_items").delete().eq("id", id);
+  if (error) {
+    setSyncStatus(error.message);
+    return;
+  }
+  await refreshRemoteData(false);
 }
 
 function resetNamedForm(name) {
@@ -280,9 +557,15 @@ function setDefaultDateTime(dateField, timeField) {
   timeField.value = formatTimeInput(now);
 }
 
+function renderShell() {
+  const signedIn = Boolean(state.user);
+  elements.authShell.classList.toggle("hidden", signedIn || !state.configReady);
+  elements.userShell.classList.toggle("hidden", !signedIn);
+  elements.configBanner.classList.toggle("hidden", state.configReady);
+}
+
 function setView(view) {
   state.view = view;
-
   elements.pageTabs.forEach((button) => {
     button.classList.toggle("is-active", button.dataset.view === view);
   });
@@ -303,7 +586,7 @@ function render() {
   renderTrend(derivedEntries);
   renderRecurring();
   renderHistory(derivedEntries);
-  elements.storageStatus.textContent = "Saved locally on this device";
+  elements.storageStatus.textContent = "Stored in Supabase for this account";
 }
 
 function renderSummary(entries) {
@@ -395,10 +678,8 @@ function renderRecurring() {
     fragment.querySelector(".recurring-meta").textContent = `${frequencyLabels[item.frequency]} starting ${formatShortDate(item.startDate)} - next due ${formatShortDate(getNextOccurrenceDate(item).toISOString())}`;
     fragment.querySelector(".recurring-notes").textContent = item.notes || "No notes";
 
-    fragment.querySelector(".delete-button").addEventListener("click", () => {
-      state.recurringItems = state.recurringItems.filter((currentItem) => currentItem.id !== item.id);
-      saveData();
-      render();
+    fragment.querySelector(".delete-button").addEventListener("click", async () => {
+      await deleteRecurringRule(item.id);
     });
 
     elements.recurringList.appendChild(fragment);
@@ -435,17 +716,13 @@ function renderHistory(entries) {
     const deleteButton = fragment.querySelector(".delete-button");
     if (entry.source === "recurring") {
       deleteButton.textContent = "Delete Rule";
-      deleteButton.addEventListener("click", () => {
-        state.recurringItems = state.recurringItems.filter((itemRule) => itemRule.id !== entry.scheduleId);
-        saveData();
-        render();
+      deleteButton.addEventListener("click", async () => {
+        await deleteRecurringRule(entry.scheduleId);
       });
     } else {
       deleteButton.textContent = "Delete";
-      deleteButton.addEventListener("click", () => {
-        state.entries = state.entries.filter((currentEntry) => currentEntry.id !== entry.id);
-        saveData();
-        render();
+      deleteButton.addEventListener("click", async () => {
+        await deleteEntry(entry.id);
       });
     }
 
@@ -476,9 +753,7 @@ function getSortedEntries(entries) {
 }
 
 function getSortedRecurringItems() {
-  return [...state.recurringItems].sort((left, right) => {
-    return new Date(right.startDate) - new Date(left.startDate);
-  });
+  return [...state.recurringItems].sort((left, right) => new Date(right.startDate) - new Date(left.startDate));
 }
 
 function expandRecurringItems(items) {
@@ -650,6 +925,79 @@ function startOfDay(date) {
   return clone;
 }
 
+function normalizeEntryRow(row) {
+  return {
+    id: row.id,
+    kind: row.kind,
+    title: row.title,
+    amount: Number(row.amount),
+    category: row.category,
+    notes: row.notes ?? "",
+    createdAt: row.occurred_at
+  };
+}
+
+function normalizeRecurringRow(row) {
+  return {
+    id: row.id,
+    kind: row.kind,
+    title: row.title,
+    amount: Number(row.amount),
+    category: row.category,
+    notes: row.notes ?? "",
+    frequency: row.frequency,
+    startDate: row.start_date
+  };
+}
+
+function loadLegacyLocalData() {
+  try {
+    const currentRaw = window.localStorage.getItem(STORAGE_KEY);
+    const currentParsed = currentRaw ? JSON.parse(currentRaw) : null;
+    const legacyRaw = window.localStorage.getItem(LEGACY_ENTRY_KEY);
+    const legacyEntries = legacyRaw ? JSON.parse(legacyRaw) : [];
+
+    return {
+      entries: currentParsed?.entries?.filter(isValidEntry) || (Array.isArray(legacyEntries) ? legacyEntries.filter(isValidEntry) : []),
+      recurringItems: currentParsed?.recurringItems?.filter(isValidRecurringItem) || []
+    };
+  } catch (error) {
+    console.error("Failed to load legacy data", error);
+    return { entries: [], recurringItems: [] };
+  }
+}
+
+function shouldImportLegacyData(userId) {
+  return !window.localStorage.getItem(`${LEGACY_IMPORT_PREFIX}-${userId}`);
+}
+
+function markLegacyImported(userId) {
+  window.localStorage.setItem(`${LEGACY_IMPORT_PREFIX}-${userId}`, "true");
+}
+
+function isValidEntry(entry) {
+  return entry
+    && typeof entry.id === "string"
+    && (entry.kind === "expense" || entry.kind === "income")
+    && typeof entry.title === "string"
+    && Number.isFinite(Number(entry.amount))
+    && typeof entry.category === "string"
+    && typeof entry.notes === "string"
+    && typeof entry.createdAt === "string";
+}
+
+function isValidRecurringItem(item) {
+  return item
+    && typeof item.id === "string"
+    && (item.kind === "expense" || item.kind === "income")
+    && typeof item.title === "string"
+    && Number.isFinite(Number(item.amount))
+    && typeof item.category === "string"
+    && typeof item.notes === "string"
+    && typeof item.startDate === "string"
+    && Object.prototype.hasOwnProperty.call(frequencyLabels, item.frequency);
+}
+
 function formatCurrency(amount) {
   return new Intl.NumberFormat(undefined, {
     style: "currency",
@@ -698,65 +1046,8 @@ function formatShortDate(value) {
   });
 }
 
-function createId(prefix) {
-  if (window.crypto && typeof window.crypto.randomUUID === "function") {
-    return `${prefix}-${window.crypto.randomUUID()}`;
-  }
-
-  return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-}
-
-function loadData() {
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      return {
-        entries: Array.isArray(parsed.entries) ? parsed.entries.filter(isValidEntry) : [],
-        recurringItems: Array.isArray(parsed.recurringItems) ? parsed.recurringItems.filter(isValidRecurringItem) : []
-      };
-    }
-
-    const legacyRaw = window.localStorage.getItem(LEGACY_ENTRY_KEY);
-    const legacyEntries = legacyRaw ? JSON.parse(legacyRaw) : [];
-    return {
-      entries: Array.isArray(legacyEntries) ? legacyEntries.filter(isValidEntry) : [],
-      recurringItems: []
-    };
-  } catch (error) {
-    console.error("Failed to load data", error);
-    return { entries: [], recurringItems: [] };
-  }
-}
-
-function saveData() {
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify({
-    entries: state.entries,
-    recurringItems: state.recurringItems
-  }));
-}
-
-function isValidEntry(entry) {
-  return entry
-    && typeof entry.id === "string"
-    && (entry.kind === "expense" || entry.kind === "income")
-    && typeof entry.title === "string"
-    && Number.isFinite(Number(entry.amount))
-    && typeof entry.category === "string"
-    && typeof entry.notes === "string"
-    && typeof entry.createdAt === "string";
-}
-
-function isValidRecurringItem(item) {
-  return item
-    && typeof item.id === "string"
-    && (item.kind === "expense" || item.kind === "income")
-    && typeof item.title === "string"
-    && Number.isFinite(Number(item.amount))
-    && typeof item.category === "string"
-    && typeof item.notes === "string"
-    && typeof item.startDate === "string"
-    && Object.prototype.hasOwnProperty.call(frequencyLabels, item.frequency);
+function setSyncStatus(message) {
+  elements.syncStatus.textContent = message;
 }
 
 function registerServiceWorker() {

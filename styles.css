@@ -6,12 +6,9 @@
   --panel: rgba(255, 255, 255, 0.72);
   --panel-border: rgba(17, 37, 61, 0.08);
   --primary: #0d3b66;
-  --primary-strong: #08263f;
   --accent: #f95738;
   --income: #16886d;
   --expense: #d94841;
-  --soft-income: rgba(22, 136, 109, 0.12);
-  --soft-expense: rgba(217, 72, 65, 0.12);
   --shadow: 0 20px 60px rgba(17, 37, 61, 0.12);
   --radius: 28px;
 }
@@ -42,6 +39,10 @@ textarea {
   font: inherit;
 }
 
+.hidden {
+  display: none !important;
+}
+
 .app-shell {
   width: min(1180px, calc(100% - 32px));
   margin: 0 auto;
@@ -50,7 +51,8 @@ textarea {
 
 .hero,
 .panel,
-.page-nav {
+.page-nav,
+.config-banner {
   backdrop-filter: blur(14px);
   background: var(--panel);
   border: 1px solid var(--panel-border);
@@ -77,7 +79,8 @@ textarea {
 }
 
 .hero h1,
-.panel h2 {
+.panel h2,
+.config-banner h2 {
   margin: 0;
   line-height: 1;
 }
@@ -87,18 +90,46 @@ textarea {
   max-width: 11ch;
 }
 
-.hero-text {
-  max-width: 58ch;
-  font-size: 1.02rem;
+.hero-text,
+.auth-copy {
   line-height: 1.6;
   color: var(--muted);
 }
 
-.hero-actions {
+.hero-actions,
+.user-actions {
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 12px;
+}
+
+.config-banner {
+  border-radius: 24px;
+  padding: 20px;
+  margin-bottom: 18px;
+}
+
+.config-banner p {
+  margin-bottom: 0;
+}
+
+.auth-shell {
+  margin-bottom: 22px;
+}
+
+.auth-panel,
+.user-bar {
+  border-radius: var(--radius);
+  padding: 22px;
+}
+
+.auth-panel {
+  max-width: 620px;
+}
+
+.auth-note {
+  margin: 0;
 }
 
 .page-nav {
@@ -157,11 +188,15 @@ textarea {
   padding: 22px;
 }
 
+.user-bar,
 .panel-heading {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 16px;
+}
+
+.panel-heading {
   margin-bottom: 18px;
 }
 
@@ -189,11 +224,6 @@ textarea {
 .summary-card span,
 .summary-card h3 {
   margin: 0;
-}
-
-.summary-card p,
-.summary-card span {
-  opacity: 0.92;
 }
 
 .summary-card h3 {
@@ -359,7 +389,6 @@ button:focus {
   display: grid;
   gap: 8px;
   align-items: end;
-  justify-items: stretch;
 }
 
 .chart-bar {
@@ -556,7 +585,8 @@ button:focus {
 
   .hero,
   .panel,
-  .page-nav {
+  .page-nav,
+  .config-banner {
     padding: 18px;
     border-radius: 24px;
   }
@@ -574,10 +604,12 @@ button:focus {
     grid-template-columns: 1fr;
   }
 
+  .user-bar,
   .panel-heading,
   .history-tools,
   .form-actions,
-  .history-topline {
+  .history-topline,
+  .user-actions {
     flex-direction: column;
     align-items: stretch;
   }
