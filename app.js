@@ -24,6 +24,13 @@ const categories = {
     "Refund",
     "Investment",
     "Other"
+  ],
+  savings: [
+    "TFSA",
+    "Emergency Fund",
+    "Investing",
+    "Retirement",
+    "Other"
   ]
 };
 
@@ -66,6 +73,16 @@ const forms = {
     date: document.querySelector("#income-date"),
     time: document.querySelector("#income-time"),
     notes: document.querySelector("#income-notes")
+  },
+  savings: {
+    element: document.querySelector("#savings-form"),
+    kind: "savings",
+    title: document.querySelector("#savings-title"),
+    amount: document.querySelector("#savings-amount"),
+    category: document.querySelector("#savings-category"),
+    date: document.querySelector("#savings-date"),
+    time: document.querySelector("#savings-time"),
+    notes: document.querySelector("#savings-notes")
   }
 };
 
@@ -113,7 +130,8 @@ const elements = {
   views: {
     overview: document.querySelector("#view-overview"),
     spending: document.querySelector("#view-spending"),
-    revenue: document.querySelector("#view-revenue")
+    revenue: document.querySelector("#view-revenue"),
+    savings: document.querySelector("#view-savings")
   },
   resetButtons: Array.from(document.querySelectorAll("[data-reset-form]")),
   goOverview: document.querySelector("#go-overview"),
@@ -131,11 +149,14 @@ const elements = {
   trendChart: document.querySelector("#trend-chart"),
   chartIncomeTotal: document.querySelector("#chart-income-total"),
   chartExpenseTotal: document.querySelector("#chart-expense-total"),
+  chartSavingsTotal: document.querySelector("#chart-savings-total"),
   balanceValue: document.querySelector("#balance-value"),
   weekSpentValue: document.querySelector("#week-spent-value"),
   monthSpentValue: document.querySelector("#month-spent-value"),
   weekIncomeHint: document.querySelector("#week-income-hint"),
   monthIncomeHint: document.querySelector("#month-income-hint"),
+  savingsValue: document.querySelector("#savings-value"),
+  savingsHint: document.querySelector("#savings-hint"),
   entryCountValue: document.querySelector("#entry-count-value"),
   lastEntryHint: document.querySelector("#last-entry-hint"),
   storageStatus: document.querySelector("#storage-status"),
@@ -636,15 +657,19 @@ function render() {
 
 function renderSummary(entries, allEntries) {
   const balance = sumAmount(entries, "income") - sumAmount(entries, "expense");
+  const savingsTotal = sumAmount(entries, "savings");
+  const availableBalance = balance - savingsTotal;
   const spendingTotal = sumAmount(entries, "expense");
   const incomeTotal = sumAmount(entries, "income");
   const lastEntry = getSortedEntries(allEntries)[0];
 
-  elements.balanceValue.textContent = formatCurrency(balance);
+  elements.balanceValue.textContent = formatCurrency(availableBalance);
   elements.weekSpentValue.textContent = formatCurrency(spendingTotal);
   elements.monthSpentValue.textContent = formatCurrency(incomeTotal);
   elements.weekIncomeHint.textContent = `Income in range: ${formatCurrency(incomeTotal)}`;
   elements.monthIncomeHint.textContent = `Spending in range: ${formatCurrency(spendingTotal)}`;
+  elements.savingsValue.textContent = formatCurrency(savingsTotal);
+  elements.savingsHint.textContent = `Available after savings: ${formatCurrency(availableBalance)}`;
   elements.entryCountValue.textContent = String(entries.length);
   elements.lastEntryHint.textContent = getOverviewHint(entries, lastEntry);
   elements.overviewFilterHint.textContent = getOverviewFilterLabel(entries.length);
@@ -654,10 +679,13 @@ function renderTrend(entries) {
   elements.trendChart.innerHTML = "";
   const incomeTotal = sumAmount(entries, "income");
   const expenseTotal = sumAmount(entries, "expense");
-  const total = incomeTotal + expenseTotal;
+  const savingsTotal = sumAmount(entries, "savings");
+  const outflowTotal = expenseTotal + savingsTotal;
+  const total = incomeTotal + outflowTotal;
 
   elements.chartIncomeTotal.textContent = `Income: ${formatCurrency(incomeTotal)}`;
   elements.chartExpenseTotal.textContent = `Spending: ${formatCurrency(expenseTotal)}`;
+  elements.chartSavingsTotal.textContent = `Savings: ${formatCurrency(savingsTotal)}`;
 
   if (total <= 0) {
     const empty = document.createElement("p");
@@ -673,19 +701,21 @@ function renderTrend(entries) {
   const pie = document.createElement("div");
   pie.className = "pie-chart";
   pie.style.setProperty("--income-angle", `${(incomeTotal / total) * 360}deg`);
+  pie.style.setProperty("--expense-angle", `${(expenseTotal / total) * 360}deg`);
   pie.setAttribute("role", "img");
-  pie.setAttribute("aria-label", `Income ${formatCurrency(incomeTotal)} and spending ${formatCurrency(expenseTotal)}`);
+  pie.setAttribute("aria-label", `Income ${formatCurrency(incomeTotal)}, spending ${formatCurrency(expenseTotal)}, and savings ${formatCurrency(savingsTotal)}`);
 
   const center = document.createElement("div");
   center.className = "pie-center";
-  center.innerHTML = `<div><strong>${formatCurrency(incomeTotal - expenseTotal)}</strong><span>Net</span></div>`;
+  center.innerHTML = `<div><strong>${formatCurrency(incomeTotal - outflowTotal)}</strong><span>Net</span></div>`;
   pie.appendChild(center);
 
   const legend = document.createElement("div");
   legend.className = "pie-legend";
   legend.append(
     createLegendItem("income", "Earnings", incomeTotal, total),
-    createLegendItem("expense", "Spending", expenseTotal, total)
+    createLegendItem("expense", "Spending", expenseTotal, total),
+    createLegendItem("savings", "Savings", savingsTotal, total)
   );
 
   pieShell.append(pie, legend);
@@ -960,7 +990,7 @@ function markLegacyImported(userId) {
 function isValidEntry(entry) {
   return entry
     && typeof entry.id === "string"
-    && (entry.kind === "expense" || entry.kind === "income")
+    && (entry.kind === "expense" || entry.kind === "income" || entry.kind === "savings")
     && typeof entry.title === "string"
     && Number.isFinite(Number(entry.amount))
     && typeof entry.category === "string"

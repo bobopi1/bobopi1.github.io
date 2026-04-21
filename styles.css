@@ -9,6 +9,7 @@
   --accent: #f95738;
   --income: #16886d;
   --expense: #d94841;
+  --savings: #6f42c1;
   --shadow: 0 20px 60px rgba(17, 37, 61, 0.12);
   --radius: 28px;
 }
@@ -467,7 +468,7 @@ textarea {
 
 .page-nav {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
   padding: 10px;
   border-radius: 22px;
@@ -645,6 +646,10 @@ textarea {
   background: linear-gradient(135deg, #22577a, #38a3a5);
 }
 
+.savings-card {
+  background: linear-gradient(135deg, #5b3f93, #8b67d1);
+}
+
 .entry-form {
   display: grid;
   gap: 16px;
@@ -729,6 +734,10 @@ button:focus {
   background: linear-gradient(135deg, #0e6c58, #16886d);
 }
 
+.savings-button {
+  background: linear-gradient(135deg, #5b3f93, #7f56c4);
+}
+
 .secondary-button {
   background: white;
   color: var(--primary);
@@ -761,6 +770,10 @@ button:focus {
   color: var(--expense);
 }
 
+.savings-total {
+  color: var(--savings);
+}
+
 .trend-chart {
   display: grid;
   gap: 18px;
@@ -781,12 +794,17 @@ button:focus {
 
 .pie-chart {
   --income-angle: 180deg;
+  --expense-angle: 90deg;
   width: min(280px, 72vw);
   aspect-ratio: 1;
   border-radius: 50%;
   background:
     radial-gradient(circle at center, rgba(255, 255, 255, 0.94) 0 33%, transparent 34%),
-    conic-gradient(var(--income) 0deg var(--income-angle), var(--expense) var(--income-angle) 360deg);
+    conic-gradient(
+      var(--income) 0deg var(--income-angle),
+      var(--expense) var(--income-angle) calc(var(--income-angle) + var(--expense-angle)),
+      var(--savings) calc(var(--income-angle) + var(--expense-angle)) 360deg
+    );
   box-shadow:
     inset 0 0 0 14px rgba(255, 255, 255, 0.42),
     0 18px 42px rgba(17, 37, 61, 0.12);
@@ -858,6 +876,10 @@ button:focus {
   background: var(--expense);
 }
 
+.pie-dot.savings-dot {
+  background: var(--savings);
+}
+
 .pie-legend-value {
   color: var(--muted);
 }
@@ -905,6 +927,10 @@ button:focus {
   background: rgba(217, 72, 65, 0.15);
 }
 
+.history-item[data-kind="savings"] .history-icon {
+  background: rgba(111, 66, 193, 0.15);
+}
+
 .history-item[data-source="recurring"] {
   box-shadow: inset 0 0 0 1px rgba(17, 37, 61, 0.06);
 }
@@ -922,6 +948,10 @@ button:focus {
 
 .history-item[data-kind="expense"] .history-icon::before {
   background: var(--expense);
+}
+
+.history-item[data-kind="savings"] .history-icon::before {
+  background: var(--savings);
 }
 
 .history-copy,
@@ -967,6 +997,10 @@ button:focus {
   color: var(--expense);
 }
 
+.history-item[data-kind="savings"] .history-amount {
+  color: var(--savings);
+}
+
 .history-meta,
 .history-notes,
 .recurring-meta,
@@ -981,6 +1015,43 @@ button:focus {
 
 .recurring-item[data-kind="expense"] {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(217, 72, 65, 0.06));
+}
+
+.savings-info-panel {
+  background:
+    linear-gradient(180deg, rgba(247, 243, 255, 0.94), rgba(238, 232, 252, 0.9)),
+    var(--panel);
+}
+
+.savings-callouts {
+  display: grid;
+  gap: 14px;
+}
+
+.savings-callout {
+  padding: 18px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(91, 63, 147, 0.12);
+}
+
+.savings-callout span,
+.savings-callout strong {
+  display: block;
+}
+
+.savings-callout span {
+  color: var(--savings);
+  font-size: 0.86rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.savings-callout strong {
+  color: var(--ink);
+  line-height: 1.45;
 }
 
 .delete-button {
@@ -1075,7 +1146,7 @@ button:focus {
     right: 12px;
     bottom: 12px;
     z-index: 30;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 8px;
     padding: 10px;
     margin-bottom: 0;
@@ -1085,7 +1156,7 @@ button:focus {
   }
 
   .page-tab {
-    min-height: 58px;
+    min-height: 62px;
     border-radius: 18px;
   }
 
