@@ -1,0 +1,17 @@
+{
+  "name": "BudgetFlow Web",
+  "short_name": "BudgetFlow",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4fbff",
+  "theme_color": "#0d3b66",
+  "description": "A simple budgeting app for tracking spending and earnings on the go.",
+  "icons": [
+    {
+      "src": "assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

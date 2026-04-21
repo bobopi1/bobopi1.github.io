@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0d3b66">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>BudgetFlow Web</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">BudgetFlow Web</p>
+        <h1>Track spending while you live your day.</h1>
+        <p class="hero-text">
+          Add earnings and expenses as you go, then see what you spent this week or this month without digging through a spreadsheet.
+        </p>
+      </div>
+      <div class="hero-actions">
+        <button id="jump-to-form" class="primary-button" type="button">Add Entry</button>
+        <button id="install-app" class="secondary-button" type="button">Install Tips</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel summary-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="panel-kicker">Overview</p>
+            <h2>Your snapshot</h2>
+          </div>
+          <p id="storage-status" class="muted">Saved locally on this device</p>
+        </div>
+
+        <div class="summary-grid">
+          <article class="summary-card balance-card">
+            <p>Current balance</p>
+            <h3 id="balance-value">$0.00</h3>
+            <span>Income minus spending</span>
+          </article>
+          <article class="summary-card spending-card">
+            <p>Spent this week</p>
+            <h3 id="week-spent-value">$0.00</h3>
+            <span id="week-income-hint">Income this week: $0.00</span>
+          </article>
+          <article class="summary-card month-card">
+            <p>Spent this month</p>
+            <h3 id="month-spent-value">$0.00</h3>
+            <span id="month-income-hint">Income this month: $0.00</span>
+          </article>
+          <article class="summary-card count-card">
+            <p>Total entries</p>
+            <h3 id="entry-count-value">0</h3>
+            <span id="last-entry-hint">No entries yet</span>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel form-panel" id="entry-form-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="panel-kicker">Quick Add</p>
+            <h2>Log a new entry</h2>
+          </div>
+        </div>
+
+        <form id="entry-form" class="entry-form">
+          <div class="segmented-control">
+            <input type="radio" name="kind" id="kind-expense" value="expense" checked>
+            <label for="kind-expense">Spending</label>
+            <input type="radio" name="kind" id="kind-income" value="income">
+            <label for="kind-income">Earning</label>
+          </div>
+
+          <label>
+            <span>Title</span>
+            <input id="title" name="title" type="text" placeholder="Groceries, paycheque, coffee..." required>
+          </label>
+
+          <div class="form-row">
+            <label>
+              <span>Amount</span>
+              <input id="amount" name="amount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00" required>
+            </label>
+
+            <label>
+              <span>Category</span>
+              <select id="category" name="category"></select>
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label>
+              <span>Date</span>
+              <input id="date" name="date" type="date" required>
+            </label>
+
+            <label>
+              <span>Time</span>
+              <input id="time" name="time" type="time" required>
+            </label>
+          </div>
+
+          <label>
+            <span>Notes</span>
+            <textarea id="notes" name="notes" rows="3" placeholder="Optional note"></textarea>
+          </label>
+
+          <div class="form-actions">
+            <button class="primary-button" type="submit">Save Entry</button>
+            <button id="reset-form" class="ghost-button" type="button">Clear</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel trend-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="panel-kicker">Spending Trend</p>
+            <h2>Recent totals</h2>
+          </div>
+          <div class="segmented-mini" role="tablist" aria-label="Trend period">
+            <button id="period-weekly" class="mini-button is-active" type="button">Weekly</button>
+            <button id="period-monthly" class="mini-button" type="button">Monthly</button>
+          </div>
+        </div>
+
+        <div id="trend-chart" class="trend-chart"></div>
+      </section>
+
+      <section class="panel history-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="panel-kicker">History</p>
+            <h2>Past entries</h2>
+          </div>
+          <div class="history-tools">
+            <input id="search" class="search-input" type="search" placeholder="Search title, category, or note">
+            <select id="history-filter" aria-label="Filter history">
+              <option value="all">All</option>
+              <option value="expense">Spending</option>
+              <option value="income">Earnings</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="history-list" class="history-list"></div>
+      </section>
+    </main>
+  </div>
+
+  <template id="history-item-template">
+    <article class="history-item">
+      <div class="history-icon"></div>
+      <div class="history-copy">
+        <div class="history-topline">
+          <h3 class="history-title"></h3>
+          <p class="history-amount"></p>
+        </div>
+        <p class="history-meta"></p>
+        <p class="history-notes"></p>
+      </div>
+      <button class="delete-button" type="button">Delete</button>
+    </article>
+  </template>
+
+  <dialog id="install-dialog" class="install-dialog">
+    <div class="dialog-content">
+      <h2>Install on iPhone</h2>
+      <p>Open this app in Safari, tap the Share button, then choose <strong>Add to Home Screen</strong>.</p>
+      <p>The app will save your entries locally in Safari on that iPhone.</p>
+      <form method="dialog">
+        <button class="primary-button" type="submit">Close</button>
+      </form>
+    </div>
+  </dialog>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
