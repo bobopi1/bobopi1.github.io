@@ -10,6 +10,8 @@
   --accent: #f95738;
   --income: #16886d;
   --expense: #d94841;
+  --soft-income: rgba(22, 136, 109, 0.12);
+  --soft-expense: rgba(217, 72, 65, 0.12);
   --shadow: 0 20px 60px rgba(17, 37, 61, 0.12);
   --radius: 28px;
 }
@@ -47,7 +49,8 @@ textarea {
 }
 
 .hero,
-.panel {
+.panel,
+.page-nav {
   backdrop-filter: blur(14px);
   background: var(--panel);
   border: 1px solid var(--panel-border);
@@ -60,7 +63,7 @@ textarea {
   gap: 20px;
   padding: 28px;
   border-radius: calc(var(--radius) + 6px);
-  margin-bottom: 24px;
+  margin-bottom: 18px;
 }
 
 .eyebrow,
@@ -80,12 +83,12 @@ textarea {
 }
 
 .hero h1 {
-  font-size: clamp(2.2rem, 5vw, 4.6rem);
-  max-width: 10ch;
+  font-size: clamp(2.2rem, 5vw, 4.3rem);
+  max-width: 11ch;
 }
 
 .hero-text {
-  max-width: 56ch;
+  max-width: 58ch;
   font-size: 1.02rem;
   line-height: 1.6;
   color: var(--muted);
@@ -98,9 +101,49 @@ textarea {
   gap: 12px;
 }
 
+.page-nav {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  padding: 10px;
+  border-radius: 22px;
+  margin-bottom: 22px;
+}
+
+.page-tab {
+  min-height: 52px;
+  border: 0;
+  border-radius: 16px;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 800;
+  cursor: pointer;
+  transition: 160ms ease;
+}
+
+.page-tab.is-active {
+  background: white;
+  color: var(--primary);
+  box-shadow: 0 10px 24px rgba(17, 37, 61, 0.1);
+}
+
+.page-view {
+  display: none;
+}
+
+.page-view.is-active {
+  display: block;
+}
+
 .layout {
   display: grid;
   grid-template-columns: 1.05fr 0.95fr;
+  gap: 20px;
+}
+
+.form-layout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
 }
 
@@ -150,7 +193,7 @@ textarea {
 
 .summary-card p,
 .summary-card span {
-  opacity: 0.9;
+  opacity: 0.92;
 }
 
 .summary-card h3 {
@@ -218,36 +261,6 @@ button:focus {
   outline-offset: 2px;
 }
 
-.segmented-control {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  padding: 6px;
-  border-radius: 20px;
-  background: rgba(17, 37, 61, 0.07);
-}
-
-.segmented-control input {
-  display: none;
-}
-
-.segmented-control label {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 12px 14px;
-  border-radius: 16px;
-  font-weight: 700;
-  color: var(--muted);
-  cursor: pointer;
-  transition: 180ms ease;
-}
-
-.segmented-control input:checked + label {
-  background: white;
-  color: var(--primary);
-  box-shadow: 0 8px 20px rgba(17, 37, 61, 0.12);
-}
-
 .form-actions,
 .history-tools {
   display: flex;
@@ -280,6 +293,14 @@ button:focus {
   box-shadow: 0 14px 30px rgba(13, 59, 102, 0.22);
 }
 
+.expense-button {
+  background: linear-gradient(135deg, #b93b34, #d94841);
+}
+
+.income-button {
+  background: linear-gradient(135deg, #0e6c58, #16886d);
+}
+
 .secondary-button {
   background: white;
   color: var(--primary);
@@ -294,7 +315,8 @@ button:focus {
 .secondary-button:hover,
 .ghost-button:hover,
 .mini-button:hover,
-.delete-button:hover {
+.delete-button:hover,
+.page-tab:hover {
   transform: translateY(-1px);
 }
 
@@ -373,12 +395,14 @@ button:focus {
   min-width: 240px;
 }
 
-.history-list {
+.history-list,
+.recurring-list {
   display: grid;
   gap: 12px;
 }
 
 .history-item,
+.recurring-item,
 .empty-state {
   display: grid;
   gap: 14px;
@@ -389,7 +413,8 @@ button:focus {
   border: 1px solid rgba(17, 37, 61, 0.08);
 }
 
-.history-item {
+.history-item,
+.recurring-item {
   grid-template-columns: auto 1fr auto;
 }
 
@@ -409,6 +434,10 @@ button:focus {
   background: rgba(217, 72, 65, 0.15);
 }
 
+.history-item[data-source="recurring"] {
+  box-shadow: inset 0 0 0 1px rgba(17, 37, 61, 0.06);
+}
+
 .history-icon::before {
   content: "";
   position: absolute;
@@ -424,7 +453,8 @@ button:focus {
   background: var(--expense);
 }
 
-.history-copy {
+.history-copy,
+.recurring-copy {
   display: grid;
   gap: 6px;
 }
@@ -438,30 +468,48 @@ button:focus {
 .history-title,
 .history-amount,
 .history-meta,
-.history-notes {
+.history-notes,
+.recurring-title,
+.recurring-amount,
+.recurring-meta,
+.recurring-notes {
   margin: 0;
 }
 
-.history-title {
+.history-title,
+.recurring-title {
   font-size: 1rem;
 }
 
-.history-amount {
+.history-amount,
+.recurring-amount {
   font-weight: 800;
 }
 
-.history-item[data-kind="income"] .history-amount {
+.history-item[data-kind="income"] .history-amount,
+.recurring-item[data-kind="income"] .recurring-amount {
   color: var(--income);
 }
 
-.history-item[data-kind="expense"] .history-amount {
+.history-item[data-kind="expense"] .history-amount,
+.recurring-item[data-kind="expense"] .recurring-amount {
   color: var(--expense);
 }
 
 .history-meta,
 .history-notes,
+.recurring-meta,
+.recurring-notes,
 .empty-state {
   color: var(--muted);
+}
+
+.recurring-item[data-kind="income"] {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(22, 136, 109, 0.06));
+}
+
+.recurring-item[data-kind="expense"] {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(217, 72, 65, 0.06));
 }
 
 .delete-button {
@@ -490,7 +538,8 @@ button:focus {
 
 @media (max-width: 980px) {
   .hero,
-  .layout {
+  .layout,
+  .form-layout {
     grid-template-columns: 1fr;
   }
 
@@ -506,9 +555,14 @@ button:focus {
   }
 
   .hero,
-  .panel {
+  .panel,
+  .page-nav {
     padding: 18px;
     border-radius: 24px;
+  }
+
+  .page-nav {
+    grid-template-columns: 1fr;
   }
 
   .hero h1 {
@@ -528,7 +582,8 @@ button:focus {
     align-items: stretch;
   }
 
-  .history-item {
+  .history-item,
+  .recurring-item {
     grid-template-columns: 1fr;
   }
 
