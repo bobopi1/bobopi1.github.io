@@ -14,10 +14,16 @@
 <body>
   <div class="app-shell">
     <header class="hero">
+      <div class="hero-grid"></div>
       <div class="hero-copy">
         <p class="eyebrow">BudgetFlow Web</p>
         <h1>Stay on top of spending and revenue.</h1>
         <p class="hero-text">A calmer way to track what comes in, what goes out, and what repeats.</p>
+        <div class="hero-tags" aria-label="Highlights">
+          <span class="hero-tag">Recurring income</span>
+          <span class="hero-tag">Spending snapshots</span>
+          <span class="hero-tag">Clean history</span>
+        </div>
       </div>
       <div class="hero-scene" aria-hidden="true">
         <div class="scene-card scene-card-balance">
@@ -42,12 +48,16 @@
 
     <section id="auth-shell" class="auth-shell">
       <article class="panel auth-panel">
+        <div class="auth-panel-glow auth-panel-glow-a" aria-hidden="true"></div>
+        <div class="auth-panel-glow auth-panel-glow-b" aria-hidden="true"></div>
         <div class="panel-heading">
           <div>
             <p class="panel-kicker">Account</p>
             <h2>Sign in to sync your data</h2>
           </div>
         </div>
+
+        <p class="auth-bridge">Pick up where you left off and keep your budget close.</p>
 
         <form id="auth-form" class="entry-form">
           <label>
