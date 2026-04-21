@@ -99,7 +99,10 @@ const elements = {
   authPassword: document.querySelector("#auth-password"),
   authStatus: document.querySelector("#auth-status"),
   signUpButton: document.querySelector("#sign-up-button"),
-  signOutButton: document.querySelector("#sign-out-button"),
+  signOutButtons: [
+    document.querySelector("#sign-out-button"),
+    document.querySelector("#overview-sign-out-button")
+  ].filter(Boolean),
   userEmail: document.querySelector("#user-email"),
   syncStatus: document.querySelector("#sync-status"),
   pageTabs: Array.from(document.querySelectorAll(".page-tab")),
@@ -210,7 +213,9 @@ function bindEvents() {
 
   elements.authForm.addEventListener("submit", handleSignIn);
   elements.signUpButton.addEventListener("click", handleSignUp);
-  elements.signOutButton.addEventListener("click", handleSignOut);
+  elements.signOutButtons.forEach((button) => {
+    button.addEventListener("click", handleSignOut);
+  });
 
   Object.values(forms).forEach((form) => {
     form.element.addEventListener("submit", (event) => handleEntrySubmit(event, form));
@@ -963,7 +968,8 @@ function isValidRecurringItem(item) {
 function formatCurrency(amount) {
   return new Intl.NumberFormat(undefined, {
     style: "currency",
-    currency: "USD",
+    currency: "CAD",
+    currencyDisplay: "narrowSymbol",
     maximumFractionDigits: 2
   }).format(amount || 0);
 }
