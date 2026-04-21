@@ -466,7 +466,28 @@
     </div>
   </dialog>
 
+  <script>
+    window.__budgetflowReady = false;
+  </script>
   <script src="supabase-config.js"></script>
   <script type="module" src="app.js"></script>
+  <script>
+    window.setTimeout(() => {
+      if (window.__budgetflowReady) {
+        return;
+      }
+
+      const authStatus = document.querySelector("#auth-status");
+      const configBanner = document.querySelector("#config-banner");
+
+      if (authStatus) {
+        authStatus.textContent = "The app did not finish loading. Refresh the page. If it keeps happening, check your connection and any content blockers.";
+      }
+
+      if (configBanner && !window.BUDGETFLOW_SUPABASE_URL) {
+        configBanner.classList.remove("hidden");
+      }
+    }, 4000);
+  </script>
 </body>
 </html>

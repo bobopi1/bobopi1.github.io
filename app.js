@@ -1,5 +1,7 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
+window.__budgetflowReady = false;
+
 const STORAGE_KEY = "budgetflow-web-data-v2";
 const LEGACY_ENTRY_KEY = "budgetflow-web-entries-v1";
 const LEGACY_IMPORT_PREFIX = "budgetflow-supabase-imported";
@@ -148,6 +150,7 @@ async function bootstrap() {
   setDefaultFieldValues();
   bindEvents();
   state.configReady = initializeSupabase();
+  window.__budgetflowReady = true;
   renderShell();
 
   if (!state.configReady) {
