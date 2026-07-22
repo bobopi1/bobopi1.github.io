@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>L'Atelier Salle de Bain</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=20260708-01">
+</head>
+<body>
+  <header class="site-header site-header--home">
+    <div class="container header-inner">
+      <a class="brand-logo" href="index.html" aria-label="Accueil L'Atelier Salle de Bain">
+        <img src="Brand Logo/Latelier_logos_blanc.png" alt="L'Atelier Salle de Bain">
+      </a>
+      <nav class="main-nav" aria-label="Navigation principale">
+        <a class="nav-link" href="index.html">Accueil</a>
+        <div class="nav-dropdown">
+          <a class="nav-button" href="shop.html?collection=all">Produits</a>
+          <div class="products-menu" aria-label="Catégories de produits">
+            <div class="products-menu__column">
+              <a class="products-menu__title" href="shop.html?collection=vanites&type=meubles-salle-de-bain">Meubles de<br>salle de bain</a>
+              <a href="shop.html?collection=vanites&type=meubles-salle-de-bain">Vanité</a>
+              <a href="shop.html?collection=vanites&type=meubles-salle-de-bain&category=cabinets">Cabinets</a>
+              <a href="shop.html?collection=vanites&type=meubles-salle-de-bain&category=lingeries">Lingeries</a>
+              <a href="shop.html?collection=vanites&type=meubles-salle-de-bain&category=miroirs">Miroirs</a>
+            </div>
+            <div class="products-menu__column">
+              <a class="products-menu__title" href="shop.html?collection=vanites&type=lavabos">Lavabos</a>
+              <a href="shop.html?collection=vanites&type=lavabos&category=comptoirs">Comptoirs</a>
+              <a href="shop.html?collection=vanites&type=lavabos&category=vasques">Vasques</a>
+            </div>
+            <div class="products-menu__column">
+              <a class="products-menu__title" href="shop.html?collection=toilettes&type=toilettes">Toilettes</a>
+              <a href="shop.html?collection=toilettes&type=toilettes&category=intelligente">Intelligente</a>
+              <a href="shop.html?collection=toilettes&type=toilettes&category=1-piece">1 Pièce</a>
+              <a href="shop.html?collection=toilettes&type=toilettes&category=2-pieces">2 Pièces</a>
+            </div>
+            <div class="products-menu__column">
+              <a class="products-menu__title" href="shop.html?collection=baignoires&type=baignoires">Baignoires</a>
+              <a href="shop.html?collection=baignoires&type=baignoires&category=autoportante">Autoportante</a>
+              <a href="shop.html?collection=baignoires&type=baignoires&category=alcove">Alcove</a>
+              <a href="shop.html?collection=baignoires&type=baignoires&category=en-coin">En coin</a>
+            </div>
+            <div class="products-menu__column">
+              <a class="products-menu__title" href="shop.html?collection=douches&type=douches">Douches</a>
+              <a href="shop.html?collection=douches&type=douches&category=portes">Portes</a>
+              <a href="shop.html?collection=douches&type=douches&category=ensemble-complet">Ensemble complet</a>
+            </div>
+          </div>
+        </div>
+        <a class="nav-link" href="shop.html?promotion=sale">Promotions</a>
+        <a class="nav-link" href="about.html">À propos</a>
+        <a class="nav-link" href="contact.html">Nous contacter</a>
+      </nav>
+      <div class="header-actions">
+        <a class="icon-button" href="#" aria-label="Rechercher" aria-haspopup="true" aria-expanded="false" data-site-search-trigger>
+          <svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="7"></circle><path d="m16 16 5 5"></path></svg>
+        </a>
+        <a class="icon-button" href="cart.html" aria-label="Panier">
+          <svg viewBox="0 0 24 24"><path d="M5 6h16l-2 9H7L5 3H2"></path><circle cx="9" cy="20" r="1.5"></circle><circle cx="18" cy="20" r="1.5"></circle></svg>
+          <span class="cart-count" data-cart-count>0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-media">
+        <picture>
+          <source media="(max-width: 640px)" srcset="Assets/Lifestyle_Hero_Mobile.png">
+          <img src="Assets/Lifestyle_Hero_V4.png" alt="Vanité bois naturel dans une salle de bain verte">
+        </picture>
+      </div>
+      <div class="container">
+        <div class="hero-copy">
+          <h1>Créez la salle de bain qui vous ressemble</h1>
+          <p>Magasinez tous les essentiels de la salle de bain</p>
+          <div class="button-row">
+            <a class="btn" href="#builder">Créer mon ensemble</a>
+            <a class="btn-outline" href="shop.html?collection=all">Voir tous nos produits</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="apropos">
+      <div class="container">
+        <h2 class="section-title">Pourquoi magasiner chez L'Atelier?</h2>
+        <div class="benefit-grid">
+          <article class="benefit-item">
+            <span class="benefit-icon"><img src="Assets/Star.png" alt=""></span>
+            <h3>Choix varié</h3>
+            <p>Plusieurs styles, dimensions et finis disponibles.</p>
+          </article>
+          <article class="benefit-item">
+            <span class="benefit-icon"><img src="Assets/Dollar.png" alt=""></span>
+            <h3>Prix accessible</h3>
+            <p>Des produits élégants et de qualité, offerts à des prix justes.</p>
+          </article>
+          <article class="benefit-item">
+            <span class="benefit-icon"><img src="Assets/Box.png" alt=""></span>
+            <h3>Ramassage à l'entrepôt</h3>
+            <p>Récupérez votre commande facilement, au moment qui vous convient.</p>
+          </article>
+          <article class="benefit-item">
+            <span class="benefit-icon"><img src="Assets/support.png" alt=""></span>
+            <h3>Support personnalisé</h3>
+            <p>Besoin d'aide? Appelez-nous pour des conseils adaptés.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-heading-row">
+          <h2>Magasiner par catégorie</h2>
+          <a class="text-link" href="shop.html?collection=all">
+            <span>voir toutes les produits</span>
+            <span class="text-link__arrow" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                <path d="M5 12h12"></path>
+                <path d="m13 6 6 6-6 6"></path>
+              </svg>
+            </span>
+          </a>
+        </div>
+        <div class="category-carousel" data-home-category-carousel>
+          <button class="category-carousel__button category-carousel__button--prev" type="button" data-home-category-prev aria-label="Voir les catégories précédentes">
+            <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+              <path d="m15 6-6 6 6 6"></path>
+            </svg>
+          </button>
+          <div class="category-grid" data-home-categories></div>
+          <button class="category-carousel__button category-carousel__button--next" type="button" data-home-category-next aria-label="Voir les catégories suivantes">
+            <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+              <path d="m9 6 6 6-6 6"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--cream" id="builder">
+      <div class="container">
+        <h2 class="section-title">Créez votre salle de bain idéale, simplement</h2>
+        <p class="section-kicker">Utilisez notre outil de design pour trouver facilement les produits qui correspondent à vos besoins et à votre style.</p>
+        <div class="builder-layout">
+          <div class="builder-image">
+            <div class="builder-preview-frame">
+              <img data-builder-preview src="Assets/Lifestyle_Relax_NA_6122_WhiteCT.png" alt="Vanité bois naturel avec miroir et rangement">
+              <button class="builder-product-link text-link" type="button" data-builder-product-link aria-haspopup="dialog" aria-controls="builder-product-sheet">
+                <span>Voir le produit</span>
+                <span class="text-link__arrow" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                    <path d="M5 12h12"></path>
+                    <path d="m13 6 6 6-6 6"></path>
+                  </svg>
+                </span>
+              </button>
+            </div>
+            <div class="builder-total">
+              <div>
+                <span>Total estimé</span>
+                <strong data-builder-total>0 $</strong>
+              </div>
+              <small>+ Tx</small>
+            </div>
+          </div>
+          <div class="builder-steps">
+            <section class="builder-step">
+              <span class="step-number">1</span>
+              <div>
+                <span class="step-title">Choisissez votre produit</span>
+                <div class="choice-row" data-builder-type-row>
+                  <button class="choice-button is-active" type="button" data-builder-type="vanite">Vanité</button>
+                  <button class="choice-button" type="button" data-builder-type="douche">Douche</button>
+                  <button class="choice-button" type="button" data-builder-type="baignoire">Baignoire</button>
+                  <button class="choice-button" type="button" data-builder-type="toilette">Toilette</button>
+                </div>
+              </div>
+            </section>
+            <section class="builder-step" data-builder-installation-step hidden>
+              <span class="step-number" data-builder-installation-step-number>2</span>
+              <div>
+                <span class="step-title" data-builder-installation-title>Type d'installation</span>
+                <div class="option-row" data-builder-installation-row></div>
+              </div>
+            </section>
+            <section class="builder-step">
+              <span class="step-number" data-builder-width-step-number>2</span>
+              <div>
+                <span class="step-title" data-builder-size-title>Sélectionnez la largeur</span>
+                <div class="option-row" data-builder-width-row>
+                  <button class="option-button" type="button" data-builder-width="30&quot;">30"</button>
+                  <button class="option-button is-active" type="button" data-builder-width="36&quot;">36"</button>
+                  <button class="option-button" type="button" data-builder-width="48&quot;">48"</button>
+                  <button class="option-button" type="button" data-builder-width="60&quot;">60"</button>
+                </div>
+              </div>
+            </section>
+            <section class="builder-step">
+              <span class="step-number" data-builder-design-step-number>3</span>
+              <div>
+                <span class="step-title">Choisissez votre design</span>
+                <div class="design-options" data-builder-design-row>
+                  <button class="design-card is-active" type="button" data-builder-design="Rustique">
+                    <img src="Assets/Relax_NA_3722_WhiteCT.jpg" alt="Design rustique">
+                    <span>Rustique</span>
+                  </button>
+                  <button class="design-card" type="button" data-builder-design="Moderne">
+                    <img src="Assets/Nord_White_3722.jpg" alt="Design moderne">
+                    <span>Moderne</span>
+                  </button>
+                  <button class="design-card" type="button" data-builder-design="Intemporel">
+                    <img src="Assets/Nord_White_4922.jpg" alt="Design intemporel">
+                    <span>Intemporel</span>
+                  </button>
+                </div>
+              </div>
+            </section>
+            <section class="builder-step" data-builder-finish-step>
+              <span class="step-number" data-builder-finish-step-number>4</span>
+              <div>
+                <span class="step-title" data-builder-finish-title>Sélectionnez le type de comptoir</span>
+                <div class="builder-finish-controls">
+                  <div class="option-row" data-builder-material-row>
+                    <button class="option-button is-active" type="button" data-builder-material="Marbre">Marbre</button>
+                    <button class="option-button" type="button" data-builder-material="Quartz">Quartz</button>
+                    <button class="option-button" type="button" data-builder-material="Porcelaine">Porcelaine</button>
+                  </div>
+                  <label class="builder-countertop-color" data-builder-countertop-color-row hidden>
+                    <span class="builder-countertop-color__label">Couleur :</span>
+                    <select class="builder-select" data-builder-countertop-color-select aria-label="Couleur du comptoir"></select>
+                  </label>
+                </div>
+              </div>
+            </section>
+            <section class="builder-step" data-builder-addon-step>
+              <span class="step-number" data-builder-addon-step-number>5</span>
+              <div>
+                <span class="step-title" data-builder-addon-title>Complétez votre ensemble</span>
+                <div class="addon-grid" data-builder-addon-row>
+                  <button class="addon-card" type="button" data-builder-addon="cabinet-mural-bois-naturel">
+                    <img src="Assets/Relax_Na_WallCabinet.jpg" alt="Armoire murale">
+                    <span>Armoire murale</span>
+                  </button>
+                  <button class="addon-card is-active" type="button" data-builder-addon="lingerie-bois-naturel">
+                    <img src="Assets/Relax_NA_Lingerie.jpg" alt="Lingerie">
+                    <span>Lingerie</span>
+                  </button>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+        <button class="builder-mobile-summary" type="button" data-builder-mobile-summary data-builder-mobile-summary-open hidden aria-haspopup="dialog" aria-controls="builder-product-sheet" aria-label="Voir le produit sélectionné">
+          <img class="builder-mobile-summary__image" data-builder-mobile-summary-image src="Assets/Lifestyle_Relax_NA_6122_WhiteCT.png" alt="">
+          <div class="builder-mobile-summary__body">
+            <span class="builder-mobile-summary__label" data-builder-mobile-summary-label>Vanité</span>
+            <strong class="builder-mobile-summary__price" data-builder-mobile-summary-price>0 $</strong>
+          </div>
+        </button>
+        <button class="btn btn--sage builder-submit" type="button" data-builder-add>Ajouter l'ensemble au panier</button>
+      </div>
+    </section>
+
+    <div class="builder-product-sheet" id="builder-product-sheet" data-builder-product-sheet hidden>
+      <div class="builder-product-sheet__backdrop" data-builder-product-sheet-close aria-hidden="true"></div>
+      <div class="builder-product-sheet__panel" role="dialog" aria-modal="true" aria-labelledby="builder-product-sheet-title">
+        <button class="builder-product-sheet__close" type="button" data-builder-product-sheet-close aria-label="Fermer">
+          <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+            <path d="M6 6 18 18"></path>
+            <path d="M18 6 6 18"></path>
+          </svg>
+        </button>
+        <div class="builder-product-sheet__content" data-builder-product-sheet-content></div>
+      </div>
+    </div>
+
+    <section class="promo-band" id="promotions">
+      <div class="promo-copy">
+        <div class="promo-copy__heading">
+          <img class="promo-copy__icon" src="Assets/Price_tag.png" alt="" aria-hidden="true">
+          <h2>Offres et promotions exclusives</h2>
+        </div>
+        <p>Économisez sur une sélection de produits de qualité pour votre salle de bain.</p>
+        <a class="btn-outline" href="shop.html?promotion=sale">Voir les promotions</a>
+      </div>
+      <div class="promo-image">
+        <img src="Assets/Freestanding_lifestyle.png" alt="Baignoire autoportante en ambiance chaleureuse">
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <img class="footer-logo" src="Brand Logo/Latelier_logos_vert.png" alt="L'Atelier Salle de Bain">
+        <p>Des produits élégants et durables pour une salle de bain qui vous ressemble.</p>
+      </div>
+      <div>
+        <h2>Collections</h2>
+        <nav class="footer-links" data-footer-collections aria-label="Collections"></nav>
+      </div>
+      <div>
+        <h2>Aide</h2>
+        <nav class="footer-links">
+          <a href="about.html">À propos</a>
+          <a href="contact.html">Nous contacter</a>
+          <a href="shop.html">FAQ</a>
+          <a href="cart.html">Politique de retour & Livraison</a>
+          <a href="shop.html">Guides d'installation</a>
+        </nav>
+      </div>
+      <div>
+        <h2>Infolettre</h2>
+        <form class="newsletter-form">
+          <input class="newsletter-input" type="email" placeholder="votre@email.com" aria-label="Adresse courriel">
+          <button class="newsletter-button" type="button" aria-label="S'inscrire">
+            <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+              <path d="M5 12h12"></path>
+              <path d="m13 6 6 6-6 6"></path>
+            </svg>
+          </button>
+        </form>
+        <div class="social-row">
+          <span class="social-dot social-dot--facebook">f</span>
+          <span class="social-dot social-dot--instagram">ig</span>
+          <span class="social-dot social-dot--tiktok">t</span>
+          <span class="social-dot social-dot--pinterest">p</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/shopify-config.js?v=20260605-15"></script>
+  <script src="js/commerce.js?v=20260608-01"></script>
+  <script src="js/ui.js?v=20260708-01"></script>
+  <script src="js/home.js?v=20260617-03"></script>
+</body>
+</html>

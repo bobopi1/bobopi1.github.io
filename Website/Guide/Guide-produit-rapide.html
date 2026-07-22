@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guide rapide - Ajouter un produit dans Shopify</title>
+  <style>
+    :root {
+      --sage: #7f876f;
+      --sage-dark: #5f6658;
+      --sage-light: #eef0e8;
+      --ink: #1b1b1b;
+      --muted: #6c6f64;
+      --paper: #fbfaf4;
+      --line: #d9dccf;
+      --accent: #d69b74;
+      --shadow: 0 16px 40px rgba(44, 51, 35, 0.10);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.96)),
+        radial-gradient(circle at top left, rgba(127,135,111,0.09), transparent 38%);
+    }
+
+    .page {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 32px 28px 28px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 24px;
+      align-items: end;
+      padding: 24px 24px 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.82);
+      box-shadow: var(--shadow);
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: 34px;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+    }
+
+    .hero p {
+      margin: 12px 0 0;
+      font-size: 16px;
+      line-height: 1.55;
+      color: var(--muted);
+      max-width: 62ch;
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 14px;
+      border-radius: 999px;
+      background: var(--sage-light);
+      color: var(--sage-dark);
+      font-size: 13px;
+      font-weight: 700;
+      border: 1px solid rgba(95,102,88,0.14);
+    }
+
+    .hero-media {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .thumb {
+      margin: 0;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .thumb img {
+      display: block;
+      width: 100%;
+      height: 134px;
+      object-fit: cover;
+    }
+
+    .thumb figcaption {
+      padding: 10px 12px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--sage-dark);
+    }
+
+    .section-title {
+      margin: 26px 0 14px;
+      font-size: 18px;
+      letter-spacing: -0.01em;
+      color: var(--sage-dark);
+    }
+
+    .mapping {
+      display: grid;
+      gap: 12px;
+    }
+
+    .map-row {
+      display: grid;
+      grid-template-columns: 1fr 82px 1fr;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .field-card,
+    .site-card {
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.92);
+      box-shadow: var(--shadow);
+      padding: 16px 18px;
+      min-height: 118px;
+    }
+
+    .field-card h3,
+    .site-card h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      color: var(--sage-dark);
+    }
+
+    .field-card ul,
+    .site-card ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--ink);
+      line-height: 1.42;
+      font-size: 14px;
+    }
+
+    .field-card li + li,
+    .site-card li + li {
+      margin-top: 6px;
+    }
+
+    .arrow {
+      display: grid;
+      place-items: center;
+      align-self: stretch;
+      position: relative;
+    }
+
+    .arrow::before {
+      content: "";
+      position: absolute;
+      inset: 50% 8px auto 8px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--sage), transparent);
+      transform: translateY(-50%);
+    }
+
+    .arrow svg {
+      width: 38px;
+      height: 38px;
+      position: relative;
+      z-index: 1;
+      color: var(--sage);
+      background: #fff;
+      border-radius: 999px;
+      padding: 5px;
+      box-shadow: 0 3px 12px rgba(44, 51, 35, 0.12);
+      border: 1px solid rgba(95,102,88,0.15);
+    }
+
+    .checklist {
+      margin-top: 20px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.92);
+      box-shadow: var(--shadow);
+      padding: 18px 20px;
+    }
+
+    .checklist h2 {
+      margin: 0 0 10px;
+      font-size: 17px;
+      color: var(--sage-dark);
+    }
+
+    .checklist-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .check-item {
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      padding: 12px;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .check-item strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--sage-dark);
+      font-size: 14px;
+    }
+
+    .sale-note {
+      margin-top: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(95,102,88,0.18);
+      background: var(--sage-light);
+      padding: 14px 16px;
+    }
+
+    .sale-note h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      color: var(--sage-dark);
+    }
+
+    .sale-note ul {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .sale-note li + li {
+      margin-top: 5px;
+    }
+
+    .footer-note {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+
+    .small-note {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 1060px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .map-row {
+        grid-template-columns: 1fr;
+      }
+
+      .arrow {
+        min-height: 36px;
+      }
+
+      .arrow::before {
+        inset: 50% 24px auto 24px;
+      }
+
+      .arrow svg {
+        transform: rotate(90deg);
+      }
+
+      .checklist-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        padding: 16px;
+      }
+
+      .hero h1 {
+        font-size: 28px;
+      }
+
+      .hero-media {
+        grid-template-columns: 1fr;
+      }
+
+      .checklist-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media print {
+      @page { size: A4 landscape; margin: 10mm; }
+      body {
+        background: #fff;
+      }
+      .page {
+        max-width: none;
+        padding: 0;
+      }
+      .hero, .field-card, .site-card, .checklist, .thumb {
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div>
+        <div class="hero-badges">
+          <span class="badge">Guide rapide</span>
+          <span class="badge">Shopify → site</span>
+          <span class="badge">1 page</span>
+        </div>
+        <h1>Ajouter un produit dans Shopify sans casser le builder</h1>
+        <p>
+          Remplissez la fiche produit dans Shopify une seule fois. Le site lit ensuite ces champs pour afficher les boutons,
+          les images, les prix, les dimensions et le reste automatiquement.
+        </p>
+      </div>
+
+      <div class="hero-media" aria-label="Aperçus du site">
+        <figure class="thumb">
+          <img src="./Home%20Page.png" alt="Aperçu de la page d’accueil">
+          <figcaption>Accueil</figcaption>
+        </figure>
+        <figure class="thumb">
+          <img src="./Produit%20page.png" alt="Aperçu de la fiche produit">
+          <figcaption>Fiche produit</figcaption>
+        </figure>
+        <figure class="thumb">
+          <img src="./Shop%20Page%20-%20Shower.png" alt="Aperçu de la page boutique">
+          <figcaption>Boutique</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <h2 class="section-title">Ce que Shopify alimente</h2>
+    <section class="mapping">
+      <div class="map-row">
+        <article class="field-card">
+          <h3>Titre et description</h3>
+          <ul>
+            <li><strong>Titre</strong> du produit</li>
+            <li><strong>Description</strong> du produit</li>
+          </ul>
+        </article>
+        <div class="arrow" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M5 12h12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"></path>
+            <path d="m13 6 6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </div>
+        <article class="site-card">
+          <h3>Le site l’utilise pour</h3>
+          <ul>
+            <li>Le nom affiché dans le builder et sur la page produit</li>
+            <li>Le texte de présentation sur la fiche produit</li>
+          </ul>
+        </article>
+      </div>
+
+      <div class="map-row">
+        <article class="field-card">
+          <h3>Médias</h3>
+          <ul>
+            <li>Photos produit</li>
+            <li>Photos de variante si le visuel change selon le choix</li>
+          </ul>
+        </article>
+        <div class="arrow" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M5 12h12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"></path>
+            <path d="m13 6 6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </div>
+        <article class="site-card">
+          <h3>Le site l’utilise pour</h3>
+          <ul>
+            <li>Les miniatures, la grande image et le popup “Voir le produit”</li>
+            <li>L’image de la variante sélectionnée quand elle existe</li>
+          </ul>
+        </article>
+      </div>
+
+      <div class="map-row">
+        <article class="field-card">
+          <h3>Tarification</h3>
+          <ul>
+            <li><strong>Prix</strong></li>
+            <li><strong>Prix avant réduction</strong> si vous en utilisez un</li>
+          </ul>
+        </article>
+        <div class="arrow" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M5 12h12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"></path>
+            <path d="m13 6 6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </div>
+        <article class="site-card">
+          <h3>Le site l’utilise pour</h3>
+          <ul>
+            <li>Le prix affiché dans le builder, la boutique et le panier</li>
+            <li>Le montant de la variante choisie</li>
+          </ul>
+        </article>
+      </div>
+
+      <div class="map-row">
+        <article class="field-card">
+          <h3>Variantes</h3>
+          <ul>
+            <li><strong>Nom de l’option</strong></li>
+            <li><strong>Valeurs de l’option</strong></li>
+            <li>Exemples : taille, couleur, type d’installation, matériau</li>
+          </ul>
+        </article>
+        <div class="arrow" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M5 12h12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"></path>
+            <path d="m13 6 6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </div>
+        <article class="site-card">
+          <h3>Le site l’utilise pour</h3>
+          <ul>
+            <li>Les boutons de sélection dans le builder</li>
+            <li>Les listes déroulantes, les cartes de design et les variantes du panier</li>
+          </ul>
+        </article>
+      </div>
+
+      <div class="map-row">
+        <article class="field-card">
+          <h3>Champs méta</h3>
+          <ul>
+            <li><strong>Width</strong>, <strong>Length</strong>, <strong>Height</strong></li>
+            <li><strong>Dimensions</strong></li>
+            <li><strong>Countertop_dimensions</strong></li>
+            <li><strong>Material</strong>, <strong>Countertop_Material</strong></li>
+            <li><strong>note</strong></li>
+          </ul>
+        </article>
+        <div class="arrow" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M5 12h12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"></path>
+            <path d="m13 6 6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </div>
+        <article class="site-card">
+          <h3>Le site l’utilise pour</h3>
+          <ul>
+            <li>Afficher les dimensions et les matériaux dans la fiche produit et le popup du builder</li>
+            <li>Afficher la note du type “Comptoir inclus”</li>
+          </ul>
+        </article>
+      </div>
+
+      <div class="map-row">
+        <article class="field-card">
+          <h3>Organisation du produit</h3>
+          <ul>
+            <li><strong>Type</strong></li>
+            <li><strong>Balises</strong></li>
+          </ul>
+        </article>
+        <div class="arrow" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M5 12h12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"></path>
+            <path d="m13 6 6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </div>
+        <article class="site-card">
+          <h3>Le site l’utilise pour</h3>
+          <ul>
+            <li>Classer le produit dans la bonne catégorie du builder</li>
+            <li>Filtrer, regrouper et retrouver plus facilement les produits</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="checklist">
+      <h2>À vérifier avant de publier</h2>
+      <div class="checklist-grid">
+        <div class="check-item">
+          <strong>1. Titre</strong>
+          Le nom du produit est clair et cohérent.
+        </div>
+        <div class="check-item">
+          <strong>2. Type</strong>
+          Le produit est dans la bonne catégorie : Vanité, Douche, Baignoire ou Toilette.
+        </div>
+        <div class="check-item">
+          <strong>3. Variantes</strong>
+          Les <strong>Nom de l’option</strong> et <strong>Valeurs de l’option</strong> correspondent aux choix du builder.
+        </div>
+        <div class="check-item">
+          <strong>4. Médias</strong>
+          Les bonnes images sont attachées au produit et aux variantes.
+        </div>
+        <div class="check-item">
+          <strong>5. Champs méta</strong>
+          Les dimensions, matériaux et notes sont remplis.
+        </div>
+      </div>
+      <div class="sale-note">
+        <h3>Si le produit est en solde</h3>
+        <ul>
+          <li>Dans la variante concern&eacute;e, entrez le prix r&eacute;duit dans <strong>Prix</strong>.</li>
+          <li>Entrez le prix original dans <strong>Prix avant r&eacute;duction</strong>.</li>
+          <li>Exemple : <strong>Prix = 900,00&nbsp;$</strong> et <strong>Prix avant r&eacute;duction = 1&nbsp;000,00&nbsp;$</strong>.</li>
+          <li>Si <strong>Prix avant r&eacute;duction</strong> est vide, le site affichera seulement le prix sold&eacute; sans le prix barr&eacute;.</li>
+        </ul>
+      </div>
+      <div class="footer-note">
+        Règle simple : <strong>Shopify contient l’information</strong> et <strong>le site la présente</strong>.
+        Si un champ est vide ou mal nommé, le builder ne peut pas l’utiliser correctement.
+      </div>
+      <div class="small-note">
+        Les libellés ci-dessus suivent les mots-clés Shopify utilisés dans notre boutique : <strong>Titre</strong>, <strong>Description</strong>, <strong>Médias</strong>, <strong>Tarification</strong>, <strong>Variantes</strong>, <strong>Champs méta</strong>, <strong>Organisation du produit</strong>, <strong>Type</strong> et <strong>Balises</strong>.
+      </div>
+    </section>
+  </main>
+</body>
+</html>

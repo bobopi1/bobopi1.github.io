@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Produit - L'Atelier Salle de Bain</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=20260708-01">
+</head>
+<body class="page-product">
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand-logo" href="index.html" aria-label="Accueil L'Atelier Salle de Bain">
+        <img src="Brand Logo/Latelier_logos_blanc.png" alt="L'Atelier Salle de Bain">
+      </a>
+      <nav class="main-nav" aria-label="Navigation principale">
+        <a class="nav-link" href="index.html">Accueil</a>
+        <div class="nav-dropdown">
+          <a class="nav-button" href="shop.html?collection=all">Produits</a>
+          <div class="products-menu" aria-label="Catégories de produits">
+            <div class="products-menu__column">
+              <a class="products-menu__title" href="shop.html?collection=vanites&type=meubles-salle-de-bain">Meubles de<br>salle de bain</a>
+              <a href="shop.html?collection=vanites&type=meubles-salle-de-bain">Vanité</a>
+              <a href="shop.html?collection=vanites&type=meubles-salle-de-bain&category=cabinets">Cabinets</a>
+              <a href="shop.html?collection=vanites&type=meubles-salle-de-bain&category=lingeries">Lingeries</a>
+              <a href="shop.html?collection=vanites&type=meubles-salle-de-bain&category=miroirs">Miroirs</a>
+            </div>
+            <div class="products-menu__column">
+              <a class="products-menu__title" href="shop.html?collection=vanites&type=lavabos">Lavabos</a>
+              <a href="shop.html?collection=vanites&type=lavabos&category=comptoirs">Comptoirs</a>
+              <a href="shop.html?collection=vanites&type=lavabos&category=vasques">Vasques</a>
+            </div>
+            <div class="products-menu__column">
+              <a class="products-menu__title" href="shop.html?collection=toilettes&type=toilettes">Toilettes</a>
+              <a href="shop.html?collection=toilettes&type=toilettes&category=intelligente">Intelligente</a>
+              <a href="shop.html?collection=toilettes&type=toilettes&category=1-piece">1 Pièce</a>
+              <a href="shop.html?collection=toilettes&type=toilettes&category=2-pieces">2 Pièces</a>
+            </div>
+            <div class="products-menu__column">
+              <a class="products-menu__title" href="shop.html?collection=baignoires&type=baignoires">Baignoires</a>
+              <a href="shop.html?collection=baignoires&type=baignoires&category=autoportante">Autoportante</a>
+              <a href="shop.html?collection=baignoires&type=baignoires&category=alcove">Alcove</a>
+              <a href="shop.html?collection=baignoires&type=baignoires&category=en-coin">En coin</a>
+            </div>
+            <div class="products-menu__column">
+              <a class="products-menu__title" href="shop.html?collection=douches&type=douches">Douches</a>
+              <a href="shop.html?collection=douches&type=douches&category=portes">Portes</a>
+              <a href="shop.html?collection=douches&type=douches&category=ensemble-complet">Ensemble complet</a>
+            </div>
+          </div>
+        </div>
+        <a class="nav-link" href="shop.html?promotion=sale">Promotions</a>
+        <a class="nav-link" href="about.html">À propos</a>
+        <a class="nav-link" href="contact.html">Nous contacter</a>
+      </nav>
+      <div class="header-actions">
+        <a class="icon-button" href="#" aria-label="Rechercher" aria-haspopup="true" aria-expanded="false" data-site-search-trigger>
+          <svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="7"></circle><path d="m16 16 5 5"></path></svg>
+        </a>
+        <a class="icon-button" href="cart.html" aria-label="Panier">
+          <svg viewBox="0 0 24 24"><path d="M5 6h16l-2 9H7L5 3H2"></path><circle cx="9" cy="20" r="1.5"></circle><circle cx="18" cy="20" r="1.5"></circle></svg>
+          <span class="cart-count" data-cart-count>0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="container product-detail-layout">
+      <div class="gallery">
+        <div class="thumbnail-rail" data-product-thumbnails></div>
+        <div class="main-image">
+          <img src="Assets/Relax_NA_3122.jpg" alt="" data-product-main-image>
+          <div class="gallery-arrows">
+            <button class="round-button" type="button" data-gallery-prev aria-label="Image précédente">&lt;</button>
+            <button class="round-button" type="button" data-gallery-next aria-label="Image suivante">&gt;</button>
+          </div>
+        </div>
+      </div>
+      <article class="product-info">
+        <h1 data-product-title>Produit</h1>
+        <span class="product-type" data-product-type>Type</span>
+        <div class="detail-price" data-product-price>0 $</div>
+        <p data-product-description></p>
+        <div class="spec-group" data-dimensions-group>
+          <h2>Dimensions</h2>
+          <div class="spec-table" data-dimensions></div>
+        </div>
+        <div class="spec-group" data-materials-group>
+          <h2>Matériel</h2>
+          <div class="spec-table" data-materials></div>
+        </div>
+        <p class="included-note" data-product-note></p>
+        <div class="variant-panel">
+          <div class="variant-field" data-product-dimension-field hidden>
+            <label class="variant-field__label" for="product-dimension-select">Dimensions :</label>
+            <select class="variant-select" id="product-dimension-select" data-product-dimension></select>
+          </div>
+          <div class="variant-field" data-product-installation-field hidden>
+            <label class="variant-field__label" for="product-installation-select">Type d'installation :</label>
+            <select class="variant-select" id="product-installation-select" data-product-installation></select>
+          </div>
+          <div class="variant-field" data-product-countertop-field>
+            <label class="variant-field__label" for="product-countertop-select">Comptoir :</label>
+            <select class="variant-select" id="product-countertop-select" data-product-countertop></select>
+          </div>
+          <div class="variant-field" data-product-color-field>
+            <label class="variant-field__label" for="product-color-select">Couleur :</label>
+            <select class="variant-select" id="product-color-select" data-product-color></select>
+          </div>
+          <div class="variant-field" data-product-variant-field>
+            <label>
+              <h2>Options</h2>
+              <select class="variant-select" data-product-variant></select>
+            </label>
+          </div>
+          <label class="variant-toggle" data-product-base-field hidden>
+            <input type="checkbox" data-product-base>
+            <span>Ajouter la base de douche</span>
+          </label>
+          <label class="quantity-row">
+            <span>Quantité</span>
+            <input class="quantity-input" type="number" min="1" value="1" data-product-quantity>
+          </label>
+        </div>
+        <div class="product-add-wrap" data-product-add-wrap>
+          <p class="product-stock-message" data-product-stock-message hidden>Rupture de stock</p>
+          <button class="btn btn--sage product-add" type="button" data-product-add>Ajouter au panier</button>
+        </div>
+      </article>
+    </section>
+
+    <section class="recommendations">
+      <div class="container">
+        <h2>Souvent achetés ensemble</h2>
+        <div class="recommendation-grid" data-recommendations></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <img class="footer-logo" src="Brand Logo/Latelier_logos_vert.png" alt="L'Atelier Salle de Bain">
+        <p>Des produits élégants et durables pour une salle de bain qui vous ressemble.</p>
+      </div>
+      <div>
+        <h2>Collections</h2>
+        <nav class="footer-links" data-footer-collections aria-label="Collections"></nav>
+      </div>
+      <div>
+        <h2>Aide</h2>
+        <nav class="footer-links">
+          <a href="about.html">À propos</a>
+          <a href="contact.html">Nous contacter</a>
+          <a href="shop.html">FAQ</a>
+          <a href="cart.html">Politique de retour & Livraison</a>
+          <a href="shop.html">Guides d'installation</a>
+        </nav>
+      </div>
+      <div>
+        <h2>Infolettre</h2>
+        <form class="newsletter-form">
+          <input class="newsletter-input" type="email" placeholder="votre@email.com" aria-label="Adresse courriel">
+          <button class="newsletter-button" type="button" aria-label="S'inscrire">-></button>
+        </form>
+        <div class="social-row">
+          <span class="social-dot social-dot--facebook">f</span>
+          <span class="social-dot social-dot--instagram">ig</span>
+          <span class="social-dot social-dot--tiktok">t</span>
+          <span class="social-dot social-dot--pinterest">p</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/shopify-config.js?v=20260605-15"></script>
+  <script src="js/commerce.js?v=20260617-02"></script>
+  <script src="js/ui.js?v=20260708-01"></script>
+  <script src="js/product-page.js?v=20260617-06"></script>
+</body>
+</html>
