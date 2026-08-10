@@ -50,6 +50,113 @@ body {
   background: var(--cream);
 }
 
+.page-faq {
+  background: var(--cream);
+}
+
+.page-faq .site-footer {
+  background: var(--cream);
+}
+
+.faq-section {
+  padding-top: 18px;
+}
+
+.faq-layout {
+  max-width: 980px;
+  display: grid;
+  gap: 42px;
+}
+
+.faq-group {
+  display: grid;
+  gap: 16px;
+}
+
+.faq-group h2 {
+  margin: 0;
+  color: var(--sage-dark);
+  font-size: 28px;
+  line-height: 1.2;
+}
+
+.faq-list {
+  display: grid;
+  border-top: 1px solid rgba(95, 113, 97, 0.34);
+}
+
+.faq-item {
+  border-bottom: 1px solid rgba(95, 113, 97, 0.34);
+  background: transparent;
+}
+
+.faq-item summary {
+  min-height: 68px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 22px;
+  gap: 22px;
+  align-items: center;
+  padding: 18px 24px;
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1.28;
+  cursor: pointer;
+  list-style: none;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-item summary::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  justify-self: end;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 180ms ease;
+}
+
+.faq-item[open] summary {
+  background: var(--sage-soft);
+  color: var(--sage-dark);
+}
+
+.faq-item[open] summary::after {
+  transform: rotate(225deg);
+}
+
+.faq-answer {
+  max-width: 860px;
+  padding: 18px 24px 26px;
+  color: #2f332c;
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+.faq-answer p {
+  margin: 0;
+}
+
+.faq-answer p + p,
+.faq-answer p + ul,
+.faq-answer ul + p {
+  margin-top: 12px;
+}
+
+.faq-answer ul {
+  margin: 0;
+  padding-left: 22px;
+}
+
+.faq-answer li + li {
+  margin-top: 8px;
+}
+
 .about-simple {
   padding-top: 18px;
   padding-bottom: 88px;
@@ -3540,6 +3647,27 @@ body.modal-open {
 
   .page-contact .page-hero h1 {
     font-size: 40px;
+  }
+
+  .faq-layout {
+    gap: 34px;
+  }
+
+  .faq-group h2 {
+    font-size: 24px;
+  }
+
+  .faq-item summary {
+    min-height: 58px;
+    grid-template-columns: minmax(0, 1fr) 18px;
+    gap: 16px;
+    padding: 16px 14px;
+    font-size: 16px;
+  }
+
+  .faq-answer {
+    padding: 14px 14px 22px;
+    font-size: 16px;
   }
 
   .section {
