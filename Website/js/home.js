@@ -1320,22 +1320,16 @@
     const target = document.querySelector("[data-home-categories]");
     if (!target) return;
 
-    const categories = [
-      { type: "vanite", label: "Meubles de salle de bain" },
-      { type: "lavabo", label: "Lavabos" },
-      { type: "toilette", label: "Toilettes" },
-      { type: "douche", label: "Douches" },
-      { type: "baignoire", label: "Baignoires" }
-    ];
+    const categories = ui.buildProductTaxonomy(commerce.getProducts().filter(hasInStockVariants));
 
-    target.innerHTML = categories.map(({ type, label }) => {
-      const collection = getBuilderTypeMeta(type).collection;
-      const product = getBuilderTypeProducts(type)[0] || null;
+    target.innerHTML = categories.map((category) => {
+      const label = category.label;
+      const product = (category.products || [])[0] || null;
       const imageSrc = getImageSrc(product?.images?.[0], getBuilderCategoryPlaceholder(label));
       const imageAlt = product?.images?.[0]?.altText || label;
 
       return `
-        <a class="category-card" href="shop.html?collection=${encodeURIComponent(collection)}">
+        <a class="category-card" href="${escapeHtml(category.href || `shop.html?type=${encodeURIComponent(category.key)}`)}">
           <img src="${escapeHtml(imageSrc)}" alt="${escapeHtml(imageAlt)}">
           <span class="category-card__footer">
             <span>${escapeHtml(label)}</span>
