@@ -232,27 +232,36 @@ body {
 .warranty-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  gap: 16px;
 }
 
-.warranty-grid div {
+.warranty-group {
   min-width: 0;
-  padding: 16px;
+  padding: 20px;
   border: 1px solid rgba(95, 113, 97, 0.16);
   border-radius: 8px;
   background: var(--cream);
 }
 
-.warranty-grid span {
+.warranty-group span {
   display: inline-block;
-  margin-bottom: 8px;
+  margin-bottom: 14px;
   color: var(--sage-dark);
+  font-size: 24px;
   font-weight: 900;
+  line-height: 1.1;
 }
 
-.warranty-grid p {
+.warranty-group ul {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.warranty-group li {
   font-size: 15px;
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
 .faq-section {
