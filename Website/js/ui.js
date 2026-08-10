@@ -446,12 +446,14 @@
   function createProductCard(product) {
     const commerce = window.LatelierCommerce;
     const image = product.images?.[0] || { src: "", altText: product.title || "" };
+    const hoverImage = product.images?.[1]?.src ? product.images[1] : null;
 
     return `
       <div class="product-card">
         <a class="product-card__link" href="product.html?handle=${encodeURIComponent(product.handle)}">
-          <span class="product-card__image">
-            <img src="${escapeHtml(image.src)}" alt="${escapeHtml(image.altText)}">
+          <span class="product-card__image${hoverImage ? " product-card__image--has-hover" : ""}">
+            <img class="product-card__image-primary" src="${escapeHtml(image.src)}" alt="${escapeHtml(image.altText)}">
+            ${hoverImage ? `<img class="product-card__image-hover" src="${escapeHtml(hoverImage.src)}" alt="" aria-hidden="true">` : ""}
           </span>
           <span class="product-card__body">
             <h2>${escapeHtml(product.title)}</h2>
