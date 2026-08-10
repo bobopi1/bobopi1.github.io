@@ -2857,16 +2857,12 @@ body.modal-open {
 }
 
 .product-add-wrap {
-  position: relative;
+  display: grid;
+  gap: 10px;
   margin-top: 18px;
 }
 
 .product-stock-message {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: -12px;
-  transform: translateY(-100%);
   margin: 0;
   padding: 8px 12px;
   border-radius: 999px;
