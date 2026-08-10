@@ -58,6 +58,203 @@ body {
   background: var(--cream);
 }
 
+.page-policy {
+  background: var(--cream);
+}
+
+.page-policy .site-footer {
+  background: var(--cream);
+}
+
+.policy-section {
+  padding-top: 28px;
+}
+
+.policy-layout {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 34px;
+  align-items: start;
+}
+
+.policy-sidebar {
+  position: sticky;
+  top: 136px;
+  display: grid;
+  gap: 4px;
+  padding: 18px;
+  border: 1px solid rgba(95, 113, 97, 0.18);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.policy-sidebar a {
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: var(--sage-dark);
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.policy-sidebar a:hover,
+.policy-sidebar a:focus-visible {
+  background: var(--sage-soft);
+}
+
+.policy-content {
+  display: grid;
+  gap: 26px;
+  min-width: 0;
+}
+
+.policy-highlights {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.policy-highlight {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid rgba(95, 113, 97, 0.16);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.policy-highlight span {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 16px;
+  border-radius: 50%;
+  background: var(--sage);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.policy-highlight h2 {
+  margin: 0 0 8px;
+  font-size: 19px;
+  line-height: 1.2;
+}
+
+.policy-highlight p {
+  margin: 0;
+  color: var(--sage-dark);
+  line-height: 1.55;
+}
+
+.policy-card {
+  display: grid;
+  gap: 22px;
+  padding: 34px;
+  border: 1px solid rgba(95, 113, 97, 0.16);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.policy-eyebrow {
+  color: var(--sage-dark);
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.policy-card h2 {
+  margin: -8px 0 0;
+  font-size: 36px;
+  line-height: 1.14;
+}
+
+.policy-subsection {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.policy-subsection h3 {
+  margin: 0;
+  color: var(--sage-dark);
+  font-size: 22px;
+  line-height: 1.25;
+}
+
+.policy-card p,
+.policy-list,
+.policy-steps {
+  margin: 0;
+  color: #2f332c;
+  font-size: 17px;
+  line-height: 1.72;
+}
+
+.policy-lead {
+  max-width: 780px;
+  color: var(--sage-dark);
+  font-size: 19px;
+}
+
+.policy-list,
+.policy-steps {
+  padding-left: 22px;
+}
+
+.policy-list li + li,
+.policy-steps li + li {
+  margin-top: 8px;
+}
+
+.policy-list--compact {
+  columns: 2;
+  column-gap: 34px;
+}
+
+.policy-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.policy-columns .policy-subsection {
+  padding: 22px;
+  border-radius: 8px;
+  background: var(--sage-soft);
+}
+
+.policy-steps li::marker {
+  color: var(--sage-dark);
+  font-weight: 900;
+}
+
+.warranty-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.warranty-grid div {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid rgba(95, 113, 97, 0.16);
+  border-radius: 8px;
+  background: var(--cream);
+}
+
+.warranty-grid span {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: var(--sage-dark);
+  font-weight: 900;
+}
+
+.warranty-grid p {
+  font-size: 15px;
+  line-height: 1.45;
+}
+
 .faq-section {
   padding-top: 18px;
 }
@@ -3114,8 +3311,18 @@ body.modal-open {
   .promo-band,
   .shop-layout,
   .product-detail-layout,
-  .cart-layout {
+  .cart-layout,
+  .policy-layout {
     grid-template-columns: 1fr;
+  }
+
+  .policy-sidebar {
+    position: static;
+  }
+
+  .policy-highlights,
+  .warranty-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .benefit-grid,
@@ -3647,6 +3854,42 @@ body.modal-open {
 
   .page-contact .page-hero h1 {
     font-size: 40px;
+  }
+
+  .policy-section {
+    padding-top: 20px;
+  }
+
+  .policy-content {
+    gap: 20px;
+  }
+
+  .policy-highlights,
+  .policy-columns,
+  .warranty-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .policy-card {
+    padding: 24px 18px;
+  }
+
+  .policy-card h2 {
+    font-size: 29px;
+  }
+
+  .policy-subsection h3 {
+    font-size: 20px;
+  }
+
+  .policy-card p,
+  .policy-list,
+  .policy-steps {
+    font-size: 16px;
+  }
+
+  .policy-list--compact {
+    columns: 1;
   }
 
   .faq-layout {
