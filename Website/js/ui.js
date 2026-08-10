@@ -443,10 +443,42 @@
       }));
   }
 
+  function getImageSource(image) {
+    return String(image?.src || image?.url || "").trim();
+  }
+
+  function getImageComparisonKey(image) {
+    const source = typeof image === "string" ? image : getImageSource(image);
+    return String(source || "")
+      .split("?")[0]
+      .split("#")[0]
+      .trim()
+      .toLowerCase();
+  }
+
+  function getProductCardHoverImage(product, primaryImage) {
+    const productImages = Array.isArray(product?.images) ? product.images : [];
+    if (productImages.length < 2) return null;
+
+    const primaryKey = getImageComparisonKey(primaryImage);
+    const variantImageKeys = new Set(
+      (product?.variants || [])
+        .map((variant) => getImageComparisonKey(variant?.image))
+        .filter(Boolean)
+    );
+
+    return productImages.find((image, index) => {
+      if (index === 0 || !getImageSource(image)) return false;
+      const imageKey = getImageComparisonKey(image);
+      if (!imageKey || imageKey === primaryKey) return false;
+      return !variantImageKeys.has(imageKey);
+    }) || null;
+  }
+
   function createProductCard(product) {
     const commerce = window.LatelierCommerce;
     const image = product.images?.[0] || { src: "", altText: product.title || "" };
-    const hoverImage = product.images?.[1]?.src ? product.images[1] : null;
+    const hoverImage = getProductCardHoverImage(product, image);
 
     return `
       <div class="product-card">
