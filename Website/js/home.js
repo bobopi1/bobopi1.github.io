@@ -818,8 +818,74 @@
     return score;
   }
 
+  function getBuilderTypeKeyFromLabel(label) {
+    const normalized = normalizeSearchText(label);
+    if (normalized.includes("vanit") || normalized.includes("meubles de salle de bain")) return "vanite";
+    if (normalized.includes("lavabo")) return "lavabo";
+    if (normalized.includes("douche")) return "douche";
+    if (normalized.includes("baignoire")) return "baignoire";
+    if (normalized.includes("toilette")) return "toilette";
+    return ui.slugifyTaxonomyValue(label);
+  }
+
+  function getAvailableBuilderTypeOptions() {
+    const groups = ui.buildProductTaxonomy(commerce.getProducts().filter(hasInStockVariants));
+    const options = [];
+    const seenTypes = new Set();
+
+    groups.forEach((group) => {
+      const type = getBuilderTypeKeyFromLabel(group.label);
+      if (!type || seenTypes.has(type)) return;
+      seenTypes.add(type);
+      options.push({
+        type,
+        label: group.label,
+        key: group.key,
+        products: group.products || []
+      });
+    });
+
+    return options;
+  }
+
+  function getBuilderDynamicOption(type = builderState.type) {
+    return getAvailableBuilderTypeOptions().find((option) => option.type === type) || null;
+  }
+
+  function ensureBuilderTypeSelection(preferredType = builderState.type) {
+    const options = getAvailableBuilderTypeOptions();
+    if (!options.length) return options;
+
+    builderState.type = options.some((option) => option.type === preferredType)
+      ? preferredType
+      : options[0].type;
+    return options;
+  }
+
   function getBuilderConfig(type = builderState.type) {
-    return builderConfigs[type] || builderConfigs.vanite;
+    if (builderConfigs[type]) return builderConfigs[type];
+
+    const dynamicOption = getBuilderDynamicOption(type);
+    const label = dynamicOption?.label || type;
+    return {
+      label,
+      typeAliases: [label],
+      preview: getBuilderCategoryPlaceholder(label),
+      previewAlt: label,
+      sizeTitle: "Sélectionnez les dimensions",
+      finishTitle: "Sélectionnez l'option",
+      showFinishStep: true,
+      showCountertopColorSelector: false,
+      showInstallationStep: false,
+      sizes: [],
+      defaultWidth: "",
+      defaultDesign: "",
+      finishes: [],
+      defaultFinish: "",
+      addonTitle: "Complétez votre ensemble",
+      addons: [],
+      defaultAddOns: []
+    };
   }
 
   function getVanityWidthConfig(width = builderState.width) {
@@ -988,7 +1054,11 @@
       baignoire: { label: "Baignoire", collection: "baignoires" },
       toilette: { label: "Toilette", collection: "toilettes" }
     };
-    return map[type] || map.vanite;
+    const dynamicOption = getBuilderDynamicOption(type);
+    return map[type] || {
+      label: dynamicOption?.label || type,
+      collection: dynamicOption?.key || ui.slugifyTaxonomyValue(dynamicOption?.label || type)
+    };
   }
   function getBuilderTypeAliases(type = builderState.type) {
     const config = getBuilderConfig(type);
@@ -1027,7 +1097,9 @@
     const collections = getNormalizedProductCollections(product);
 
     if (type === "vanite") {
-      return topType.includes("meubles de salle de bain") && subtype.includes("vanit");
+      return (topType.includes("meubles de salle de bain") && subtype.includes("vanit"))
+        || topType.includes("vanit")
+        || label.includes("vanit");
     }
 
     if (type === "lavabo") {
@@ -1044,6 +1116,17 @@
   }
 
   function getBuilderTypeProducts(type = builderState.type) {
+    if (!builderConfigs[type]) {
+      const dynamicOption = getBuilderDynamicOption(type);
+      return (dynamicOption?.products || [])
+        .filter(hasInStockVariants)
+        .sort((a, b) => {
+          const sourceDelta = Number(Boolean(b.source === "shopify")) - Number(Boolean(a.source === "shopify"));
+          if (sourceDelta) return sourceDelta;
+          return String(a.title || "").localeCompare(String(b.title || ""), "fr-CA");
+        });
+    }
+
     return commerce.getProducts()
       .filter((product) => matchesBuilderProductType(product, type))
       .filter(hasInStockVariants)
@@ -1435,8 +1518,8 @@
       builderState.width = widths.includes(builderState.width)
         ? builderState.width
         : (type === "toilette"
-          ? (widths[0] || config.defaultWidth || builderState.width)
-          : (config.defaultWidth || widths[0] || builderState.width));
+          ? (widths[0] || config.defaultWidth || "")
+          : (config.defaultWidth || widths[0] || ""));
       builderState.installation = "";
       const selectedProduct = getBuilderSelectedProduct(type, builderState.width);
       builderState.productHandle = selectedProduct?.handle || "";
@@ -1460,6 +1543,7 @@
   }
 
   function renderBuilderControls() {
+    const typeOptions = ensureBuilderTypeSelection(builderState.type);
     const config = getBuilderConfig();
     const preview = document.querySelector("[data-builder-preview]");
     const productLink = document.querySelector("[data-builder-product-link]");
@@ -1472,6 +1556,7 @@
     const addonTitle = document.querySelector("[data-builder-addon-title]");
     const installationStep = document.querySelector("[data-builder-installation-step]");
     const installationStepNumber = document.querySelector("[data-builder-installation-step-number]");
+    const typeRow = document.querySelector("[data-builder-type-row]");
     const installationRow = document.querySelector("[data-builder-installation-row]");
     const widthStepNumber = document.querySelector("[data-builder-width-step-number]");
     const designStepNumber = document.querySelector("[data-builder-design-step-number]");
@@ -1569,8 +1654,8 @@
       const resolvedWidth = widths.includes(builderState.width)
         ? builderState.width
         : (builderState.type === "toilette"
-          ? (widths[0] || config.defaultWidth || builderState.width)
-          : (config.defaultWidth || widths[0] || builderState.width));
+          ? (widths[0] || config.defaultWidth || "")
+          : (config.defaultWidth || widths[0] || ""));
       builderState.width = resolvedWidth;
       designOptions = getBuilderProductsForWidth(builderState.type, resolvedWidth);
       selectedProduct = getBuilderSelectedProduct(builderState.type, resolvedWidth) || designOptions[0] || null;
@@ -1648,6 +1733,11 @@
     if (finishTitle) finishTitle.textContent = normalizeDisplayText(config.finishTitle || finishTitle.textContent || "Sélectionnez la finition");
     if (addonTitle) addonTitle.textContent = config.addonTitle;
 
+    if (typeRow) {
+      typeRow.innerHTML = typeOptions.map((option) => `
+        <button class="choice-button${builderState.type === option.type ? " is-active" : ""}" type="button" data-builder-type="${escapeHtml(option.type)}">${escapeHtml(option.label)}</button>
+      `).join("");
+    }
 
     if (installationRow) {
       if (config.showInstallationStep) {
@@ -2014,6 +2104,7 @@
     fixFrenchTextEncoding();
     renderCategories();
     bindCategoryCarousel();
+    ensureBuilderTypeSelection(builderState.type);
     syncBuilderState(builderState.type);
     bindBuilder();
     bindHomeHeader();
