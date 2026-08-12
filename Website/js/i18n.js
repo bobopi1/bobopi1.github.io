@@ -4,6 +4,7 @@
   const BRAND_NAME = "L'Atelier Salle de Bain";
   const originalTextNodes = new WeakMap();
   const originalAttributes = new WeakMap();
+  let isApplyingLanguage = false;
 
   const TRANSLATIONS = new Map();
 
@@ -414,9 +415,12 @@
     }
 
     const original = originalTextNodes.get(node);
-    node.nodeValue = language === "fr"
+    const nextValue = language === "fr"
       ? original
       : withOriginalWhitespace(original, translateValue(original));
+    if (node.nodeValue !== nextValue) {
+      node.nodeValue = nextValue;
+    }
   }
 
   function translateElementAttributes(element, language) {
@@ -435,7 +439,10 @@
       }
 
       const original = store[attribute] || "";
-      element.setAttribute(attribute, language === "fr" ? original : translateValue(original));
+      const nextValue = language === "fr" ? original : translateValue(original);
+      if (element.getAttribute(attribute) !== nextValue) {
+        element.setAttribute(attribute, nextValue);
+      }
     });
   }
 
@@ -497,10 +504,17 @@
     window.LatelierI18n.language = language;
     saveLanguage(language);
     document.documentElement.lang = language;
-    translateTree(document.body, language);
-    translateDocumentTitle(language);
-    updateSwitcher(language);
-    window.dispatchEvent(new CustomEvent("latelier:language-changed", { detail: { language } }));
+    isApplyingLanguage = true;
+    try {
+      translateTree(document.body, language);
+      translateDocumentTitle(language);
+      updateSwitcher(language);
+      window.dispatchEvent(new CustomEvent("latelier:language-changed", { detail: { language } }));
+    } finally {
+      window.queueMicrotask(() => {
+        isApplyingLanguage = false;
+      });
+    }
   }
 
   function injectSwitcher() {
@@ -528,13 +542,16 @@
 
   function observeDynamicContent() {
     const observer = new MutationObserver((mutations) => {
+      if (isApplyingLanguage) return;
       const language = window.LatelierI18n.language;
       mutations.forEach((mutation) => {
         if (mutation.type === "characterData") {
           const node = mutation.target;
           const original = originalTextNodes.get(node);
-          const translated = original ? withOriginalWhitespace(original, translateValue(original)) : "";
-          if (language === "en" && original && node.nodeValue === translated) return;
+          const translated = original
+            ? (language === "fr" ? original : withOriginalWhitespace(original, translateValue(original)))
+            : "";
+          if (original && node.nodeValue === translated) return;
           originalTextNodes.set(node, node.nodeValue);
           translateTextNode(node, language);
           return;
