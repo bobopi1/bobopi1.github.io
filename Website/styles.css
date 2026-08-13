@@ -3774,7 +3774,7 @@ body.modal-open {
   }
 
   .header-inner {
-    grid-template-columns: 1fr auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: 10px;
   }
 
@@ -4325,6 +4325,47 @@ body.modal-open {
 
   #builder {
     padding-bottom: 96px;
+  }
+}
+
+@media (max-width: 360px) {
+  .header-inner {
+    gap: 8px;
+  }
+
+  .brand-logo img {
+    width: 108px;
+  }
+
+  .header-actions {
+    gap: 6px;
+  }
+
+  .language-switcher {
+    height: 28px;
+    padding: 2px;
+  }
+
+  .language-switcher button {
+    min-width: 25px;
+    height: 22px;
+    padding: 0 4px;
+    font-size: 10px;
+  }
+
+  .mobile-nav-toggle {
+    width: 30px;
+    height: 30px;
+  }
+
+  .mobile-nav-toggle span {
+    width: 19px;
+  }
+
+  .icon-button,
+  .site-search-widget > .icon-button {
+    width: 28px;
+    height: 28px;
   }
 }
 
