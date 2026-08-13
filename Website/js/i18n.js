@@ -4,7 +4,7 @@
   const BRAND_NAME = "L'Atelier Salle de Bain";
   const originalTextNodes = new WeakMap();
   const originalAttributes = new WeakMap();
-  let isApplyingLanguage = false;
+  let refreshQueued = false;
 
   const TRANSLATIONS = new Map();
 
@@ -414,7 +414,13 @@
       originalTextNodes.set(node, node.nodeValue);
     }
 
-    const original = originalTextNodes.get(node);
+    let original = originalTextNodes.get(node);
+    const translatedOriginal = withOriginalWhitespace(original, translateValue(original));
+    if (node.nodeValue !== original && node.nodeValue !== translatedOriginal) {
+      original = node.nodeValue;
+      originalTextNodes.set(node, original);
+    }
+
     const nextValue = language === "fr"
       ? original
       : withOriginalWhitespace(original, translateValue(original));
@@ -438,7 +444,14 @@
         store[attribute] = element.getAttribute(attribute);
       }
 
-      const original = store[attribute] || "";
+      let original = store[attribute] || "";
+      const translatedOriginal = translateValue(original);
+      const currentValue = element.getAttribute(attribute) || "";
+      if (currentValue !== original && currentValue !== translatedOriginal) {
+        original = currentValue;
+        store[attribute] = original;
+      }
+
       const nextValue = language === "fr" ? original : translateValue(original);
       if (element.getAttribute(attribute) !== nextValue) {
         element.setAttribute(attribute, nextValue);
@@ -504,17 +517,10 @@
     window.LatelierI18n.language = language;
     saveLanguage(language);
     document.documentElement.lang = language;
-    isApplyingLanguage = true;
-    try {
-      translateTree(document.body, language);
-      translateDocumentTitle(language);
-      updateSwitcher(language);
-      window.dispatchEvent(new CustomEvent("latelier:language-changed", { detail: { language } }));
-    } finally {
-      window.queueMicrotask(() => {
-        isApplyingLanguage = false;
-      });
-    }
+    translateTree(document.body, language);
+    translateDocumentTitle(language);
+    updateSwitcher(language);
+    window.dispatchEvent(new CustomEvent("latelier:language-changed", { detail: { language } }));
   }
 
   function injectSwitcher() {
@@ -540,54 +546,38 @@
     });
   }
 
-  function observeDynamicContent() {
-    const observer = new MutationObserver((mutations) => {
-      if (isApplyingLanguage) return;
-      const language = window.LatelierI18n.language;
-      mutations.forEach((mutation) => {
-        if (mutation.type === "characterData") {
-          const node = mutation.target;
-          const original = originalTextNodes.get(node);
-          const translated = original
-            ? (language === "fr" ? original : withOriginalWhitespace(original, translateValue(original)))
-            : "";
-          if (original && node.nodeValue === translated) return;
-          originalTextNodes.set(node, node.nodeValue);
-          translateTextNode(node, language);
-          return;
-        }
+  function refreshCurrentLanguage() {
+    setLanguage(window.LatelierI18n.language || getSavedLanguage());
+  }
 
-        mutation.addedNodes.forEach((node) => translateTree(node, language));
-
-        if (mutation.type === "attributes" && mutation.target instanceof Element) {
-          translateElementAttributes(mutation.target, language);
-        }
-      });
-      translateDocumentTitle(language);
-      updateSwitcher(language);
-    });
-
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-      characterData: true,
-      attributes: true,
-      attributeFilter: ["aria-label", "alt", "placeholder", "title"]
+  function scheduleRefresh() {
+    if (refreshQueued) return;
+    refreshQueued = true;
+    [0, 80, 300, 900].forEach((delay) => {
+      window.setTimeout(() => {
+        refreshCurrentLanguage();
+        if (delay === 900) refreshQueued = false;
+      }, delay);
     });
   }
 
   function boot() {
     injectSwitcher();
     setLanguage(getSavedLanguage());
-    observeDynamicContent();
+    scheduleRefresh();
   }
 
   window.LatelierI18n = {
     language: getSavedLanguage(),
     setLanguage,
     translateText: translateValue,
-    translatePage: () => setLanguage(window.LatelierI18n.language)
+    translatePage: refreshCurrentLanguage,
+    scheduleRefresh
   };
 
   document.addEventListener("DOMContentLoaded", boot);
+  window.addEventListener("latelier:content-updated", scheduleRefresh);
+  ["click", "change"].forEach((eventName) => {
+    document.addEventListener(eventName, scheduleRefresh, true);
+  });
 })();
