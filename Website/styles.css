@@ -3186,10 +3186,6 @@ body.modal-open {
   background: #000;
 }
 
-.social-dot--pinterest {
-  background: #e60023;
-}
-
 @media (max-width: 980px) {
   body.mobile-nav-open {
     overflow: hidden;
