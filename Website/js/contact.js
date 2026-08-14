@@ -18,11 +18,10 @@
       const subject = String(formData.get("subject") || "").trim();
       const message = String(formData.get("message") || "").trim();
 
-      const translate = window.LatelierI18n?.translateText || ((value) => value);
-      const mailSubject = subject || translate("Demande de contact");
+      const mailSubject = subject || "Demande de contact";
       const mailBody = [
-        encodeLine(translate("Nom"), name),
-        encodeLine(translate("Courriel"), senderEmail),
+        encodeLine("Nom", name),
+        encodeLine("Courriel", senderEmail),
         "",
         message
       ].join("\n");
