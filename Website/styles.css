@@ -3172,6 +3172,20 @@ body.modal-open {
   border-radius: 50%;
   color: #fff;
   font-weight: 900;
+  cursor: pointer;
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
+}
+
+.social-dot:hover {
+  opacity: 0.86;
+  transform: translateY(-1px);
+}
+
+.social-dot:focus-visible {
+  outline: 2px solid var(--sage-dark);
+  outline-offset: 3px;
 }
 
 .social-dot--facebook {
