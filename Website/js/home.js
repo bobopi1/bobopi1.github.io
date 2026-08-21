@@ -9,8 +9,7 @@
     productHandle: "",
     material: "Marbre",
     countertopColor: "Blanc",
-    addOns: new Set(["lingerie-bois-naturel"]),
-    addonPage: 0
+    addOns: new Set(["lingerie-bois-naturel"])
   };
   const builderSheetState = {
     open: false,
@@ -1526,7 +1525,6 @@
       builderState.countertopColor = "";
     }
     builderState.addOns = new Set(config.defaultAddOns || []);
-    builderState.addonPage = 0;
   }
 
   function setActiveButtons(group, value) {
@@ -1812,42 +1810,13 @@
 
     if (addonRow) {
       if (productAddonProducts.length) {
-        const cardsPerPage = 2;
-        const pageCount = Math.max(1, Math.ceil(productAddonProducts.length / cardsPerPage));
-        builderState.addonPage = Math.min(Math.max(0, builderState.addonPage || 0), pageCount - 1);
-        const pageStart = builderState.addonPage * cardsPerPage;
-        const visibleAddons = productAddonProducts.slice(pageStart, pageStart + cardsPerPage);
-        const hasMultiplePages = pageCount > 1;
-        addonRow.classList.toggle("addon-carousel--has-more", hasMultiplePages);
-        addonRow.innerHTML = `
-          <button class="addon-carousel__button addon-carousel__button--prev" type="button" data-builder-addon-prev aria-label="Voir les compléments précédents" ${!hasMultiplePages || builderState.addonPage === 0 ? "disabled" : ""}>
-            <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-              <path d="m15 6-6 6 6 6"></path>
-            </svg>
+        addonRow.innerHTML = productAddonProducts.slice(0, 5).map((addon) => `
+          <button class="addon-card${builderState.addOns.has(addon.handle) ? " is-active" : ""}" type="button" data-builder-addon="${escapeHtml(addon.handle)}">
+            <img src="${escapeHtml(addon.images?.[0]?.src || config.previewByHandle?.[addon.handle] || config.preview)}" alt="${escapeHtml(addon.images?.[0]?.altText || addon.title)}">
+            <span>${escapeHtml(addon.title)}</span>
           </button>
-          <div class="addon-grid">
-            ${visibleAddons.map((addon) => `
-              <button class="addon-card${builderState.addOns.has(addon.handle) ? " is-active" : ""}" type="button" data-builder-addon="${escapeHtml(addon.handle)}">
-                <img src="${escapeHtml(addon.images?.[0]?.src || config.previewByHandle?.[addon.handle] || config.preview)}" alt="${escapeHtml(addon.images?.[0]?.altText || addon.title)}">
-                <span>${escapeHtml(addon.title)}</span>
-              </button>
-            `).join("")}
-          </div>
-          <button class="addon-carousel__button addon-carousel__button--next" type="button" data-builder-addon-next aria-label="Voir les compléments suivants" ${!hasMultiplePages || builderState.addonPage >= pageCount - 1 ? "disabled" : ""}>
-            <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-              <path d="m9 6 6 6-6 6"></path>
-            </svg>
-          </button>
-          ${hasMultiplePages ? `
-            <div class="addon-carousel__dots" aria-label="Pages de compléments">
-              ${Array.from({ length: pageCount }, (_, index) => `
-                <button class="addon-carousel__dot${index === builderState.addonPage ? " is-active" : ""}" type="button" data-builder-addon-page="${index}" aria-label="Voir les compléments ${index * cardsPerPage + 1} à ${Math.min((index + 1) * cardsPerPage, productAddonProducts.length)}" ${index === builderState.addonPage ? 'aria-current="true"' : ""}></button>
-              `).join("")}
-            </div>
-          ` : ""}
-        `;
+        `).join("");
       } else {
-        addonRow.classList.remove("addon-carousel--has-more");
         addonRow.innerHTML = normalizeDisplayText(`<div class="builder-empty">Aucun complément n'est proposé pour cette catégorie.</div>`);
       }
     }
@@ -2001,7 +1970,6 @@
       const installationButton = event.target.closest("[data-builder-installation]");
       if (installationButton) {
         builderState.installation = installationButton.dataset.builderInstallation || "";
-        builderState.addonPage = 0;
         renderBuilderControls();
         return;
       }
@@ -2009,7 +1977,6 @@
       const widthButton = event.target.closest("[data-builder-width]");
       if (widthButton) {
         builderState.width = widthButton.dataset.builderWidth || builderState.width;
-        builderState.addonPage = 0;
         if (builderState.type === "vanite") {
           normalizeVanityState();
         }
@@ -2026,7 +1993,6 @@
         } else if (designButton.dataset.builderDesign) {
           builderState.design = designButton.dataset.builderDesign;
         }
-        builderState.addonPage = 0;
         if (builderState.type === "vanite") {
           normalizeVanityState();
         }
@@ -2050,27 +2016,6 @@
         } else {
           builderState.addOns.add(handle);
         }
-        renderBuilderControls();
-        return;
-      }
-
-      const addonPreviousButton = event.target.closest("[data-builder-addon-prev]");
-      if (addonPreviousButton) {
-        builderState.addonPage = Math.max(0, builderState.addonPage - 1);
-        renderBuilderControls();
-        return;
-      }
-
-      const addonNextButton = event.target.closest("[data-builder-addon-next]");
-      if (addonNextButton) {
-        builderState.addonPage += 1;
-        renderBuilderControls();
-        return;
-      }
-
-      const addonPageButton = event.target.closest("[data-builder-addon-page]");
-      if (addonPageButton) {
-        builderState.addonPage = Number(addonPageButton.dataset.builderAddonPage || 0);
         renderBuilderControls();
         return;
       }
