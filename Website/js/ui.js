@@ -19,6 +19,87 @@
     badge.textContent = window.LatelierCommerce.getCart().totalQuantity;
   }
 
+  const COOKIE_CONSENT_KEY = "latelier_cookie_consent_v1";
+
+  function getCookieConsent() {
+    try {
+      return localStorage.getItem(COOKIE_CONSENT_KEY) || "";
+    } catch (error) {
+      return "";
+    }
+  }
+
+  function setCookieConsent(value) {
+    try {
+      localStorage.setItem(COOKIE_CONSENT_KEY, value);
+    } catch (error) {
+      // Ignore storage failures.
+    }
+  }
+
+  function openCookieBanner() {
+    const banner = document.querySelector("[data-cookie-banner]");
+    if (!banner) return;
+    banner.hidden = false;
+    banner.querySelector("[data-cookie-accept]")?.focus();
+  }
+
+  function closeCookieBanner(choice) {
+    if (choice) setCookieConsent(choice);
+    const banner = document.querySelector("[data-cookie-banner]");
+    if (banner) banner.hidden = true;
+  }
+
+  function ensureCookieBanner() {
+    if (document.querySelector("[data-cookie-banner]")) return;
+
+    const banner = document.createElement("aside");
+    banner.className = "cookie-banner";
+    banner.setAttribute("data-cookie-banner", "");
+    banner.setAttribute("role", "dialog");
+    banner.setAttribute("aria-live", "polite");
+    banner.setAttribute("aria-label", "Préférences relatives aux témoins");
+    banner.hidden = Boolean(getCookieConsent());
+    banner.innerHTML = `
+      <div class="cookie-banner__copy">
+        <strong>Témoins</strong>
+        <p>Nous utilisons des témoins nécessaires au fonctionnement du site et, avec votre accord, des témoins pour améliorer votre expérience.</p>
+      </div>
+      <div class="cookie-banner__actions">
+        <button class="cookie-banner__button cookie-banner__button--ghost" type="button" data-cookie-decline>Refuser</button>
+        <button class="cookie-banner__button" type="button" data-cookie-accept>Accepter</button>
+      </div>
+    `;
+
+    banner.addEventListener("click", (event) => {
+      if (event.target.closest("[data-cookie-accept]")) {
+        closeCookieBanner("accepted");
+        return;
+      }
+      if (event.target.closest("[data-cookie-decline]")) {
+        closeCookieBanner("declined");
+      }
+    });
+
+    document.body.append(banner);
+  }
+
+  function ensureCookieManageLinks() {
+    document.querySelectorAll(".site-footer .footer-links").forEach((links) => {
+      if (links.querySelector("[data-cookie-manage]")) return;
+      const heading = links.previousElementSibling;
+      if (!heading || heading.textContent.trim() !== "Aide") return;
+
+      const button = document.createElement("button");
+      button.className = "footer-link-button";
+      button.type = "button";
+      button.setAttribute("data-cookie-manage", "");
+      button.textContent = "Gestion des témoins";
+      button.addEventListener("click", openCookieBanner);
+      links.append(button);
+    });
+  }
+
   function getCurrentSearchTerm() {
     const params = new URLSearchParams(window.location.search);
     return String(params.get("q") || params.get("query") || params.get("search") || "").trim();
@@ -579,10 +660,13 @@
   document.addEventListener("DOMContentLoaded", ensureSearchWidget);
   document.addEventListener("DOMContentLoaded", ensureMobileNav);
   document.addEventListener("DOMContentLoaded", bootProductsMenu);
+  document.addEventListener("DOMContentLoaded", ensureCookieBanner);
+  document.addEventListener("DOMContentLoaded", ensureCookieManageLinks);
   window.addEventListener("latelier:cart-updated", updateCartBadge);
 
   window.LatelierUI = {
     updateCartBadge,
+    openCookieBanner,
     createProductCard,
     getCollectionCount,
     getProductTypeLabel,
