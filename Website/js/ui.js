@@ -50,6 +50,18 @@
     if (banner) banner.hidden = true;
   }
 
+  function updateCookiePreferenceStatus(message) {
+    document.querySelectorAll("[data-cookie-preference-status]").forEach((status) => {
+      status.textContent = message;
+      status.hidden = false;
+    });
+  }
+
+  function declineOptionalCookies() {
+    closeCookieBanner("declined");
+    updateCookiePreferenceStatus("Vos préférences ont été mises à jour : les témoins non essentiels sont refusés.");
+  }
+
   function ensureCookieBanner() {
     if (document.querySelector("[data-cookie-banner]")) return;
 
@@ -64,6 +76,7 @@
       <div class="cookie-banner__copy">
         <strong>Témoins</strong>
         <p>Nous utilisons des témoins nécessaires au fonctionnement du site et, avec votre accord, des témoins pour améliorer votre expérience.</p>
+        <p class="cookie-banner__more">Pour plus d'information, consultez notre <a href="politique-confidentialite.html">politique de confidentialité</a>.</p>
       </div>
       <div class="cookie-banner__actions">
         <button class="cookie-banner__button cookie-banner__button--ghost" type="button" data-cookie-decline>Refuser</button>
@@ -86,9 +99,17 @@
 
   function ensureCookieManageLinks() {
     document.querySelectorAll(".site-footer .footer-links").forEach((links) => {
-      if (links.querySelector("[data-cookie-manage]")) return;
       const heading = links.previousElementSibling;
       if (!heading || heading.textContent.trim() !== "Aide") return;
+
+      if (!links.querySelector('a[href="politique-confidentialite.html"]')) {
+        const privacyLink = document.createElement("a");
+        privacyLink.href = "politique-confidentialite.html";
+        privacyLink.textContent = "Politique de confidentialité";
+        links.append(privacyLink);
+      }
+
+      if (links.querySelector("[data-cookie-manage]")) return;
 
       const button = document.createElement("button");
       button.className = "footer-link-button";
@@ -97,6 +118,19 @@
       button.textContent = "Gestion des témoins";
       button.addEventListener("click", openCookieBanner);
       links.append(button);
+    });
+  }
+
+  function bindCookiePreferenceButtons() {
+    document.addEventListener("click", (event) => {
+      if (event.target.closest("[data-cookie-opt-out]")) {
+        declineOptionalCookies();
+        return;
+      }
+
+      if (event.target.closest("[data-cookie-open]")) {
+        openCookieBanner();
+      }
     });
   }
 
@@ -662,11 +696,13 @@
   document.addEventListener("DOMContentLoaded", bootProductsMenu);
   document.addEventListener("DOMContentLoaded", ensureCookieBanner);
   document.addEventListener("DOMContentLoaded", ensureCookieManageLinks);
+  document.addEventListener("DOMContentLoaded", bindCookiePreferenceButtons);
   window.addEventListener("latelier:cart-updated", updateCartBadge);
 
   window.LatelierUI = {
     updateCartBadge,
     openCookieBanner,
+    declineOptionalCookies,
     createProductCard,
     getCollectionCount,
     getProductTypeLabel,
