@@ -155,6 +155,30 @@ body {
   background: #fff;
 }
 
+.policy-action-card {
+  border-color: rgba(95, 113, 97, 0.28);
+}
+
+.policy-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.policy-status {
+  margin: -6px 0 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: var(--sage-soft);
+  color: var(--sage-dark);
+  font-weight: 900;
+  line-height: 1.4;
+}
+
+.policy-status[hidden] {
+  display: none;
+}
+
 .policy-eyebrow {
   color: var(--sage-dark);
   font-size: 13px;
@@ -3276,6 +3300,18 @@ body.modal-open {
   color: #3d433a;
   font-size: 14px;
   line-height: 1.45;
+}
+
+.cookie-banner__more a {
+  color: var(--sage-dark);
+  font-weight: 900;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.cookie-banner__more a:hover,
+.cookie-banner__more a:focus-visible {
+  color: var(--sage);
 }
 
 .cookie-banner__actions {
