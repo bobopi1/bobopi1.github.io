@@ -224,7 +224,7 @@
       preview: "Assets/Freestanding_lifestyle.png",
       previewAlt: "Douche porte pivotante avec cadre noir",
       installationTitle: "Type d'installation",
-      sizeTitle: "Sélectionnez les dimensions",
+      sizeTitle: "Sélectionnez la dimensions",
       finishTitle: "Sélectionnez la couleur",
       showFinishStep: true,
       showCountertopColorSelector: false,
