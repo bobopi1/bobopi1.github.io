@@ -1818,6 +1818,7 @@
         const pageStart = builderState.addonPage * cardsPerPage;
         const visibleAddons = productAddonProducts.slice(pageStart, pageStart + cardsPerPage);
         const hasMultiplePages = pageCount > 1;
+        addonRow.classList.toggle("addon-carousel--has-more", hasMultiplePages);
         addonRow.innerHTML = `
           <button class="addon-carousel__button addon-carousel__button--prev" type="button" data-builder-addon-prev aria-label="Voir les compléments précédents" ${!hasMultiplePages || builderState.addonPage === 0 ? "disabled" : ""}>
             <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
@@ -1837,8 +1838,16 @@
               <path d="m9 6 6 6-6 6"></path>
             </svg>
           </button>
+          ${hasMultiplePages ? `
+            <div class="addon-carousel__dots" aria-label="Pages de compléments">
+              ${Array.from({ length: pageCount }, (_, index) => `
+                <button class="addon-carousel__dot${index === builderState.addonPage ? " is-active" : ""}" type="button" data-builder-addon-page="${index}" aria-label="Voir les compléments ${index * cardsPerPage + 1} à ${Math.min((index + 1) * cardsPerPage, productAddonProducts.length)}" ${index === builderState.addonPage ? 'aria-current="true"' : ""}></button>
+              `).join("")}
+            </div>
+          ` : ""}
         `;
       } else {
+        addonRow.classList.remove("addon-carousel--has-more");
         addonRow.innerHTML = normalizeDisplayText(`<div class="builder-empty">Aucun complément n'est proposé pour cette catégorie.</div>`);
       }
     }
@@ -2055,6 +2064,13 @@
       const addonNextButton = event.target.closest("[data-builder-addon-next]");
       if (addonNextButton) {
         builderState.addonPage += 1;
+        renderBuilderControls();
+        return;
+      }
+
+      const addonPageButton = event.target.closest("[data-builder-addon-page]");
+      if (addonPageButton) {
+        builderState.addonPage = Number(addonPageButton.dataset.builderAddonPage || 0);
         renderBuilderControls();
         return;
       }
