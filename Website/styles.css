@@ -1578,10 +1578,55 @@ body.modal-open {
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
 }
 
+.addon-carousel {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) 40px;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+}
+
 .addon-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px;
+  min-width: 0;
+}
+
+.addon-carousel__button {
+  width: 40px;
+  height: 40px;
+  display: inline-grid;
+  place-items: center;
+  border: 2px solid rgba(95, 113, 97, 0.2);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--sage);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: transform 180ms ease, border-color 180ms ease, opacity 180ms ease;
+}
+
+.addon-carousel__button svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.addon-carousel__button:hover,
+.addon-carousel__button:focus-visible {
+  transform: translateY(-2px);
+  border-color: var(--sage);
+}
+
+.addon-carousel__button:disabled {
+  opacity: 0.32;
+  cursor: default;
+  transform: none;
 }
 
 .addon-card {
@@ -3631,35 +3676,30 @@ body.modal-open {
     scrollbar-width: none;
   }
 
-  .addon-grid {
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 12px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding-bottom: 8px;
-    scroll-snap-type: x mandatory;
-    overscroll-behavior-x: contain;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
+  .addon-carousel {
+    grid-template-columns: 36px minmax(0, 1fr) 36px;
+    gap: 10px;
   }
 
-  .design-options::-webkit-scrollbar,
-  .addon-grid::-webkit-scrollbar {
+  .addon-carousel__button {
+    width: 36px;
+    height: 36px;
+  }
+
+  .addon-grid {
+    gap: 12px;
+  }
+
+  .design-options::-webkit-scrollbar {
     display: none;
   }
 
-  .design-card,
-  .addon-card {
+  .design-card {
     scroll-snap-align: start;
   }
 
   .design-card {
     flex: 0 0 min(78vw, 300px);
-  }
-
-  .addon-card {
-    flex: 0 0 min(66vw, 240px);
   }
 
   .builder-product-sheet__content {
@@ -4053,9 +4093,22 @@ body.modal-open {
     display: none;
   }
 
-  .design-options,
-  .addon-grid {
+  .design-options {
     grid-template-columns: 1fr;
+  }
+
+  .addon-carousel {
+    grid-template-columns: 34px minmax(0, 1fr) 34px;
+    gap: 8px;
+  }
+
+  .addon-carousel__button {
+    width: 34px;
+    height: 34px;
+  }
+
+  .addon-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .category-grid {
