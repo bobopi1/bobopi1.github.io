@@ -2,6 +2,7 @@
   const commerce = window.LatelierCommerce;
   const ui = window.LatelierUI;
   const params = new URLSearchParams(window.location.search);
+  const PRODUCTS_PER_PAGE = 50;
 
   const state = {
     topTypeKeys: new Set(),
@@ -11,8 +12,10 @@
     saleOnly: ["sale", "promotions", "promotion", "1", "true"].includes(normalizeText(params.get("promotion") || params.get("sale"))),
     maxPrice: 0,
     dimensions: new Set(),
+    collections: new Set(),
     colors: new Set(),
     toiletTypes: new Set(),
+    currentPage: 1,
     showAllCategories: false,
     filterPanelOpen: false
   };
@@ -112,6 +115,8 @@
     const nextKeys = keys.filter(Boolean);
     state.topTypeKeys = new Set(nextKeys);
     state.subtypeKeys = new Set();
+    state.collections = new Set();
+    state.currentPage = 1;
 
     if (syncUrl) {
       const nextUrl = new URL(window.location.href);
@@ -143,8 +148,10 @@
     state.topTypeKeys = new Set();
     state.subtypeKeys = new Set();
     state.dimensions = new Set();
+    state.collections = new Set();
     state.colors = new Set();
     state.toiletTypes = new Set();
+    state.currentPage = 1;
     state.category = "";
     if (clearSale) {
       state.saleOnly = false;
@@ -262,6 +269,88 @@
         </div>
       </div>
     `;
+  }
+
+  function getProductCollectionHandles(product) {
+    const handles = Array.isArray(product?.collections) && product.collections.length
+      ? product.collections
+      : [product?.collection];
+    return [...new Set(handles
+      .map((handle) => String(handle || "").trim())
+      .filter(Boolean))];
+  }
+
+  function getCollectionTitleMap() {
+    return new Map((commerce.getCollections() || [])
+      .map((collection) => [
+        String(collection?.handle || "").trim(),
+        String(collection?.title || collection?.handle || "").trim()
+      ])
+      .filter(([handle]) => handle));
+  }
+
+  function formatCollectionFallbackLabel(handle) {
+    return String(handle || "")
+      .replace(/[-_]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  }
+
+  function getCollectionBaseLabel(label) {
+    const text = String(label || "").trim();
+    if (!text) return "";
+
+    const normalized = text
+      .replace(/^colletion\b/i, "Collection")
+      .replace(/^collection\b/i, "Collection")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    const words = normalized.split(" ");
+    if (normalizeText(words[0]) === "collection" && words[1]) {
+      return `Collection ${words[1].charAt(0).toUpperCase()}${words[1].slice(1)}`;
+    }
+
+    return normalized;
+  }
+
+  function getCollectionFilterKey(handle, titleByHandle = getCollectionTitleMap()) {
+    const label = titleByHandle.get(handle) || formatCollectionFallbackLabel(handle);
+    return ui.slugifyTaxonomyValue(getCollectionBaseLabel(label));
+  }
+
+  function isCategoryCollectionHandle(handle, taxonomy) {
+    const key = ui.slugifyTaxonomyValue(handle);
+    if (!key || key === "all") return true;
+    if (Object.keys(TOP_CATEGORY_ALIASES).some((topKey) => isTopCategoryMatch(key, topKey))) return true;
+
+    return taxonomy.some((group) => {
+      if (isTopCategoryMatch(key, group.key) || isTopCategoryMatch(key, group.label)) return true;
+      return group.subtypes.some((subtype) => key === subtype.key || key === ui.slugifyTaxonomyValue(subtype.label));
+    });
+  }
+
+  function getCollectionFilterOptions(products, taxonomy) {
+    const titleByHandle = getCollectionTitleMap();
+    const optionsByKey = new Map();
+
+    for (const product of products) {
+      for (const handle of getProductCollectionHandles(product)) {
+        if (isCategoryCollectionHandle(handle, taxonomy)) continue;
+        const label = getCollectionBaseLabel(titleByHandle.get(handle) || formatCollectionFallbackLabel(handle));
+        const value = getCollectionFilterKey(handle, titleByHandle);
+        if (!value || optionsByKey.has(value)) continue;
+
+        optionsByKey.set(value, {
+          value,
+          label
+        });
+      }
+    }
+
+    return [...optionsByKey.values()]
+      .sort((left, right) => String(left.label).localeCompare(String(right.label), "fr-CA"));
   }
 
   function renderCollectionFilters(taxonomy) {
@@ -432,6 +521,19 @@
     const products = getCurrentProducts(taxonomy);
     const selectedGroups = getSelectedTopGroups(taxonomy);
     const sections = [];
+    const collectionSection = createCheckboxGroup(
+      "Collection",
+      getCollectionFilterOptions(products, taxonomy),
+      "collection",
+      state.collections
+    );
+    let addedCollectionSection = false;
+
+    const addCollectionSection = () => {
+      if (!collectionSection || addedCollectionSection) return;
+      sections.push(collectionSection);
+      addedCollectionSection = true;
+    };
 
     for (const group of selectedGroups) {
       const groupKind = normalizeTopCategoryKey(group.key);
@@ -441,6 +543,7 @@
           .map((product) => String(product?.metafields?.width || "").trim())
           .filter(Boolean))].sort((a, b) => Number(String(a).match(/\d+/)?.[0] || 0) - Number(String(b).match(/\d+/)?.[0] || 0));
         sections.push(createCheckboxGroup(group.label, widths, `dimension:${group.key}`, state.dimensions));
+        addCollectionSection();
       } else if (groupKind === "douches") {
         const variants = products.filter((product) => getProductTopKey(product) === group.key).flatMap((product) => getAvailableVariants(product));
         const dimensionOptionName = findOptionName(products.filter((product) => getProductTopKey(product) === group.key), (name) => {
@@ -454,6 +557,7 @@
         const dimensions = [...new Set(variants.map((variant) => getVariantOptionValue(variant, dimensionOptionName)).filter(Boolean))].sort((a, b) => String(a).localeCompare(String(b), "fr-CA"));
         const colors = [...new Set(variants.map((variant) => getVariantOptionValue(variant, colorOptionName)).filter(Boolean))].sort((a, b) => String(a).localeCompare(String(b), "fr-CA"));
         sections.push(createCheckboxGroup(group.label, dimensions, `dimension:${group.key}`, state.dimensions));
+        addCollectionSection();
         sections.push(createCheckboxGroup("Couleur", colors, `color:${group.key}`, state.colors));
       } else if (groupKind === "toilettes") {
         const variants = products.filter((product) => getProductTopKey(product) === group.key).flatMap((product) => getAvailableVariants(product));
@@ -475,6 +579,7 @@
       }
     }
 
+    addCollectionSection();
     target.innerHTML = sections.filter(Boolean).join("");
   }
 
@@ -533,6 +638,13 @@
       const [selectedTopKey, selectedSubtypeKey] = String(key || "").split("::");
       return isTopCategoryMatch(topKey, selectedTopKey) && selectedSubtypeKey === subtypeKey;
     })) return false;
+    if (state.collections.size) {
+      const titleByHandle = getCollectionTitleMap();
+      const productCollectionKeys = getProductCollectionHandles(product)
+        .map((handle) => getCollectionFilterKey(handle, titleByHandle))
+        .filter(Boolean);
+      if (![...state.collections].some((key) => productCollectionKeys.includes(key))) return false;
+    }
 
     if (isTopCategoryMatch(topKey, "douches")) {
       const products = taxonomy.flatMap((group) => group.products).filter((item) => getProductTopKey(item) === topKey);
@@ -577,6 +689,53 @@
     return true;
   }
 
+  function ensurePaginationTarget() {
+    const grid = document.querySelector("[data-product-grid]");
+    if (!grid) return null;
+
+    let pagination = document.querySelector("[data-shop-pagination]");
+    if (!pagination) {
+      pagination = document.createElement("nav");
+      pagination.className = "shop-pagination";
+      pagination.setAttribute("data-shop-pagination", "");
+      pagination.setAttribute("aria-label", "Pagination des produits");
+      grid.insertAdjacentElement("afterend", pagination);
+    }
+
+    return pagination;
+  }
+
+  function renderPagination(totalProducts) {
+    const target = ensurePaginationTarget();
+    if (!target) return;
+
+    const totalPages = Math.ceil(totalProducts / PRODUCTS_PER_PAGE);
+    if (totalPages <= 1) {
+      target.innerHTML = "";
+      target.hidden = true;
+      return;
+    }
+
+    target.hidden = false;
+    target.innerHTML = `
+      <button class="shop-pagination__button" type="button" data-page="${state.currentPage - 1}" ${state.currentPage === 1 ? "disabled" : ""} aria-label="Page précédente">
+        <span aria-hidden="true">&lt;</span>
+      </button>
+      ${Array.from({ length: totalPages }, (_, index) => {
+        const page = index + 1;
+        const current = page === state.currentPage;
+        return `
+          <button class="shop-pagination__button ${current ? "is-active" : ""}" type="button" data-page="${page}" ${current ? 'aria-current="page"' : ""}>
+            ${page}
+          </button>
+        `;
+      }).join("")}
+      <button class="shop-pagination__button" type="button" data-page="${state.currentPage + 1}" ${state.currentPage === totalPages ? "disabled" : ""} aria-label="Page suivante">
+        <span aria-hidden="true">&gt;</span>
+      </button>
+    `;
+  }
+
   function renderProducts(taxonomy) {
     const target = document.querySelector("[data-product-grid]");
     if (!target) return;
@@ -585,10 +744,15 @@
       .filter((product) => getProductPriceValue(product) <= state.maxPrice)
       .filter((product) => productMatchesSubtypeSelection(product))
       .filter((product) => productMatchesOptions(product, taxonomy));
+    const totalPages = Math.max(1, Math.ceil(products.length / PRODUCTS_PER_PAGE));
+    state.currentPage = Math.min(Math.max(1, state.currentPage), totalPages);
+    const startIndex = (state.currentPage - 1) * PRODUCTS_PER_PAGE;
+    const pageProducts = products.slice(startIndex, startIndex + PRODUCTS_PER_PAGE);
 
     target.innerHTML = products.length
-      ? products.map(ui.createProductCard).join("")
+      ? pageProducts.map(ui.createProductCard).join("")
       : '<div class="empty-state">Aucun produit ne correspond aux filtres sélectionnés.</div>';
+    renderPagination(products.length);
   }
 
   function renderShopHeading(taxonomy) {
@@ -724,6 +888,9 @@
         } else if (kind.startsWith("dimension:")) {
           if (input.checked) state.dimensions.add(input.value);
           else state.dimensions.delete(input.value);
+        } else if (kind === "collection") {
+          if (input.checked) state.collections.add(input.value);
+          else state.collections.delete(input.value);
         } else if (kind.startsWith("color:")) {
           if (input.checked) state.colors.add(input.value);
           else state.colors.delete(input.value);
@@ -732,6 +899,7 @@
           else state.toiletTypes.delete(input.value);
         }
 
+        state.currentPage = 1;
         renderProducts(taxonomy);
       });
     }
@@ -740,9 +908,21 @@
       price.addEventListener("input", () => {
         state.maxPrice = Number(price.value);
         if (priceValue) priceValue.textContent = `${price.value}$`;
+        state.currentPage = 1;
         renderProducts(taxonomy);
       });
     }
+
+    document.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-shop-pagination] [data-page]");
+      if (!button) return;
+      const page = Number(button.dataset.page || 1);
+      if (!Number.isFinite(page) || button.disabled || page === state.currentPage) return;
+
+      state.currentPage = page;
+      renderProducts(taxonomy);
+      document.querySelector("[data-product-grid]")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
   }
 
   function syncFilterPanelForViewport() {
